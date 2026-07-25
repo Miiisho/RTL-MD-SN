@@ -59,24 +59,36 @@ body {
 }
 
 .toolbar button {
-  min-width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
   height: 32px;
-  padding: 0 8px;
+  padding: 0;
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
   color: var(--fg);
-  font-size: 15px;
-  font-family: var(--font);
   cursor: pointer;
   transition: background 0.12s ease;
+}
+
+.toolbar button svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .toolbar button:hover {
   background: var(--btn-hover);
 }
 
-.toolbar button:active {
+.toolbar button:active,
+.toolbar button.is-active {
   background: var(--btn-active);
 }
 
