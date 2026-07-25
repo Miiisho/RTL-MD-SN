@@ -42,7 +42,7 @@ npm run serve      # بناء + خادم محلي على http://localhost:8080 �
 لأي استضافة. رابط التثبيت:
 
 ```
-https://rawcdn.githack.com/Miiisho/RTL-MD-SN/fedc2b234e5b3f5bb5e625512edbf02129fa1d9d/dist/ext.json
+https://rawcdn.githack.com/Miiisho/RTL-MD-SN/b81f4c5938ccf4323aea89a8ae0c622336e3405d/dist/ext.json
 ```
 
 > لماذا لا jsDelivr؟ لأن jsDelivr تُقدّم ملفات `.html` بنوع `text/plain`،
