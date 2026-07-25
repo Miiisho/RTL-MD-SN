@@ -5,9 +5,9 @@
   "area": "editor-editor",
   "version": "1.0.0",
   "description": "محرر Markdown يكتب من اليمين إلى اليسار (RTL) مع شريط أدوات: عريض/مائل/تحته خط، نقاط وترقيم، مقسّم صفحات، تراجع، وكود، مع معاينة حيّة.",
-  "url": "https://cdn.jsdelivr.net/gh/Miiisho/RTL-MD-SN@f88f62e31d0df5ba86719a7445ee6021b8de3107/dist/index.html",
+  "url": "https://rawcdn.githack.com/Miiisho/RTL-MD-SN/f7b942cfca588b1edd219b15aa8c8f1f53d7fb48/dist/index.html",
   "download_url": "https://github.com/Miiisho/RTL-MD-SN/archive/refs/heads/claude/standard-notes-rtl-plugin-vccs1k.zip",
-  "latest_url": "https://cdn.jsdelivr.net/gh/Miiisho/RTL-MD-SN@f88f62e31d0df5ba86719a7445ee6021b8de3107/dist/ext.json",
+  "latest_url": "https://rawcdn.githack.com/Miiisho/RTL-MD-SN/f7b942cfca588b1edd219b15aa8c8f1f53d7fb48/dist/ext.json",
   "flags": ["RTL", "Markdown"],
   "dock_icon": {
     "type": "circle",

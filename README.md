@@ -35,14 +35,18 @@ npm run serve      # بناء + خادم محلي على http://localhost:8080 �
 
 ## التثبيت في Standard Notes
 
-### الطريقة الأساسية: عبر jsDelivr (لا تحتاج أي إعدادات)
+### الطريقة الأساسية: عبر githack (لا تحتاج أي إعدادات)
 
-ملفات `dist/` مضمّنة في المستودع وتُخدَّم مباشرة عبر شبكة jsDelivr، فلا حاجة
-لتفعيل GitHub Pages ولا لأي استضافة. رابط التثبيت:
+ملفات `dist/` مضمّنة في المستودع وتُخدَّم عبر **raw.githack.com** التي تُقدّم
+صفحات HTML بنوع المحتوى الصحيح `text/html`، فلا حاجة لتفعيل GitHub Pages ولا
+لأي استضافة. رابط التثبيت:
 
 ```
-https://cdn.jsdelivr.net/gh/Miiisho/RTL-MD-SN@f88f62e31d0df5ba86719a7445ee6021b8de3107/dist/ext.json
+https://rawcdn.githack.com/Miiisho/RTL-MD-SN/f7b942cfca588b1edd219b15aa8c8f1f53d7fb48/dist/ext.json
 ```
+
+> لماذا لا jsDelivr؟ لأن jsDelivr تُقدّم ملفات `.html` بنوع `text/plain`،
+> فيظهر كود الصفحة كنص بدل تشغيلها. githack تحلّ هذه المشكلة.
 
 الخطوات في Standard Notes:
 
