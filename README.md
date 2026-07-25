@@ -39,18 +39,15 @@ npm run serve      # بناء + خادم محلي على http://localhost:8080 �
 
 ## التثبيت في Standard Notes
 
-### الطريقة الأساسية: عبر githack (لا تحتاج أي إعدادات)
+### الطريقة الأساسية: GitHub Pages (رابط ثابت)
 
-ملفات `dist/` مضمّنة في المستودع وتُخدَّم عبر **raw.githack.com** التي تُقدّم
-صفحات HTML بنوع المحتوى الصحيح `text/html`، فلا حاجة لتفعيل GitHub Pages ولا
-لأي استضافة. رابط التثبيت:
+يوجد GitHub Action في `.github/workflows/deploy.yml` ينشر مجلد `dist/` تلقائيًا
+إلى GitHub Pages عند كل دفع (بعد تفعيل Pages من
+**Settings → Pages → Source: GitHub Actions**). رابط التثبيت الثابت:
 
 ```
-https://raw.githack.com/Miiisho/RTL-MD-SN/b81f4c5938ccf4323aea89a8ae0c622336e3405d/dist/ext.json
+https://miiisho.github.io/RTL-MD-SN/ext.json
 ```
-
-> لماذا لا jsDelivr؟ لأن jsDelivr تُقدّم ملفات `.html` بنوع `text/plain`،
-> فيظهر كود الصفحة كنص بدل تشغيلها. githack تحلّ هذه المشكلة.
 
 الخطوات في Standard Notes:
 
@@ -60,18 +57,8 @@ https://raw.githack.com/Miiisho/RTL-MD-SN/b81f4c5938ccf4323aea89a8ae0c622336e340
 3. افتح أي ملاحظة، ومن أيقونة تغيير المحرر (قائمة Editor) اختر
    **محرر RTL Markdown**.
 
-> عند دفع نسخة جديدة يتغيّر معرّف الـ commit في الرابط؛ استخدم دائمًا الرابط
-> المذكور هنا (المرتبط بأحدث إصدار).
-
-### طريقة بديلة: GitHub Pages
-
-يوجد GitHub Action في `.github/workflows/deploy.yml` ينشر مجلد `dist/` إلى
-GitHub Pages. شغّله يدويًا من تبويب **Actions** بعد تفعيل Pages من
-(**Settings → Pages → Source: GitHub Actions**)، ثم ثبّت عبر:
-
-```
-https://miiisho.github.io/rtl-md-sn/ext.json
-```
+> هذا الرابط **ثابت** ولا يتغيّر مع التحديثات؛ كل دفع جديد يُحدّث المحتوى في
+> نفس الرابط تلقائيًا.
 
 ### طريقة بديلة: أي استضافة ثابتة أخرى
 

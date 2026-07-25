@@ -4,10 +4,10 @@
   "content_type": "SN|Component",
   "area": "editor-editor",
   "version": "1.0.0",
-  "description": "محرر Markdown يكتب من اليمين إلى اليسار (RTL) مع شريط أدوات: عريض/مائل/تحته خط، نقاط وترقيم، مقسّم صفحات، تراجع، وكود، مع معاينة حيّة.",
-  "url": "https://raw.githack.com/Miiisho/RTL-MD-SN/b81f4c5938ccf4323aea89a8ae0c622336e3405d/dist/index.html",
+  "description": "محرر Markdown يكتب من اليمين إلى اليسار (RTL) مع شريط أدوات: عريض/مائل/تحته خط/شطب، نقاط وترقيم، مقسّم صفحات، تراجع وإعادة، وكود — نمط WYSIWYG مع اتجاه تلقائي.",
+  "url": "https://miiisho.github.io/RTL-MD-SN/index.html",
   "download_url": "https://github.com/Miiisho/RTL-MD-SN/archive/refs/heads/claude/standard-notes-rtl-plugin-vccs1k.zip",
-  "latest_url": "https://raw.githack.com/Miiisho/RTL-MD-SN/b81f4c5938ccf4323aea89a8ae0c622336e3405d/dist/ext.json",
+  "latest_url": "https://miiisho.github.io/RTL-MD-SN/ext.json",
   "flags": ["RTL", "Markdown"],
   "dock_icon": {
     "type": "circle",

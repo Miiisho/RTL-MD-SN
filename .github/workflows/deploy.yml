@@ -1,9 +1,10 @@
 name: Deploy to GitHub Pages
 
-# ملاحظة: هذا النشر اختياري ويتطلب تفعيل GitHub Pages أولاً
-# (Settings → Pages → Source: GitHub Actions). طريقة التثبيت الأساسية
-# تعتمد على jsDelivr ولا تحتاج هذا الإجراء إطلاقًا.
 on:
+  push:
+    branches:
+      - claude/standard-notes-rtl-plugin-vccs1k
+      - main
   workflow_dispatch:
 
 permissions:
