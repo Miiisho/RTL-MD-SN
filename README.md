@@ -35,32 +35,42 @@ npm run serve      # بناء + خادم محلي على http://localhost:8080 �
 
 ## التثبيت في Standard Notes
 
-الإضافة تُثبَّت عبر رابط `ext.json`. لديك طريقتان:
+### الطريقة الأساسية: عبر jsDelivr (لا تحتاج أي إعدادات)
 
-### 1) استضافة عبر GitHub Pages (مؤتمت)
+ملفات `dist/` مضمّنة في المستودع وتُخدَّم مباشرة عبر شبكة jsDelivr، فلا حاجة
+لتفعيل GitHub Pages ولا لأي استضافة. رابط التثبيت:
 
-يوجد GitHub Action في `.github/workflows/deploy.yml` ينشر مجلد `dist/` تلقائيًا
-إلى GitHub Pages عند كل دفع. بعد تفعيل Pages من إعدادات المستودع
-(**Settings → Pages → Source: GitHub Actions**)، سيصبح الرابط:
+```
+https://cdn.jsdelivr.net/gh/Miiisho/RTL-MD-SN@f88f62e31d0df5ba86719a7445ee6021b8de3107/dist/ext.json
+```
+
+الخطوات في Standard Notes:
+
+1. افتح **Preferences → General → Advanced Settings** فعّل الخيارات المتقدمة،
+   ثم **Install Custom Extension**.
+2. الصق الرابط أعلاه واضغط **Install**.
+3. افتح أي ملاحظة، ومن أيقونة تغيير المحرر (قائمة Editor) اختر
+   **محرر RTL Markdown**.
+
+> عند دفع نسخة جديدة يتغيّر معرّف الـ commit في الرابط؛ استخدم دائمًا الرابط
+> المذكور هنا (المرتبط بأحدث إصدار).
+
+### طريقة بديلة: GitHub Pages
+
+يوجد GitHub Action في `.github/workflows/deploy.yml` ينشر مجلد `dist/` إلى
+GitHub Pages. شغّله يدويًا من تبويب **Actions** بعد تفعيل Pages من
+(**Settings → Pages → Source: GitHub Actions**)، ثم ثبّت عبر:
 
 ```
 https://miiisho.github.io/rtl-md-sn/ext.json
 ```
 
-ثم في Standard Notes:
+### طريقة بديلة: أي استضافة ثابتة أخرى
 
-1. افتح **Preferences → Advanced Settings → Install Custom Extension**
-   (يلزم تفعيل الوضع المتقدّم بالنقر على «Advanced» في أسفل الإعدادات).
-2. الصق رابط `ext.json` أعلاه واضغط **Install**.
-3. افتح أي ملاحظة، ومن قائمة تغيير المحرر (أيقونة القلم) اختر **محرر RTL Markdown**.
+ارفع محتوى مجلد `dist/` إلى Netlify أو Vercel أو خادمك، وعدّل `url` و`latest_url`
+في `ext.json` لتشير إلى موقعك، ثم ثبّت عبر رابط `ext.json`.
 
-### 2) استضافة على أي خادم آخر
-
-ارفع محتوى مجلد `dist/` إلى أي استضافة ثابتة (Netlify، Vercel، خادمك الخاص…)،
-ثم عدّل الحقول `url` و`latest_url` في `ext.json` لتشير إلى موقعك، وثبّت عبر رابط
-`ext.json` كما في الطريقة الأولى.
-
-> ملاحظة: يفضّل Standard Notes استضافة الإضافات عبر HTTPS.
+> يفضّل Standard Notes استضافة الإضافات عبر HTTPS.
 
 ## البنية
 
