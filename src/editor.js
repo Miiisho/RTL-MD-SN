@@ -38,6 +38,12 @@ turndown.addRule('underline', {
   replacement: (content) => `<u>${content}</u>`,
 })
 
+// شطب النص ~~ (GitHub Flavored Markdown)
+turndown.addRule('strikethrough', {
+  filter: ['del', 's', 'strike'],
+  replacement: (content) => `~~${content}~~`,
+})
+
 function markdownToHtml(md) {
   const dirty = marked.parse(md || '', { breaks: true, gfm: true })
   return DOMPurify.sanitize(dirty, { ADD_ATTR: ['dir'] })
@@ -71,8 +77,16 @@ function scheduleSave(markdown) {
   saveTimer = setTimeout(() => saveNote(markdown), 350)
 }
 
+/** ضبط اتجاه كل فقرة تلقائيًا (RTL للعربية، LTR للإنجليزية) */
+function applyAutoDir() {
+  editor
+    .querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre')
+    .forEach((el) => el.setAttribute('dir', 'auto'))
+}
+
 function loadMarkdownIntoEditor(md) {
   editor.innerHTML = markdownToHtml(md) || '<p><br></p>'
+  applyAutoDir()
   source.value = md || ''
   lastSavedMarkdown = md || ''
 }
@@ -114,6 +128,7 @@ let sourceMode = false
 
 editor.addEventListener('input', () => {
   if (sourceMode) return
+  applyAutoDir()
   const md = htmlToMarkdown(editor.innerHTML)
   source.value = md
   scheduleSave(md)
@@ -132,6 +147,7 @@ source.addEventListener('input', () => {
 function exec(command, value = null) {
   editor.focus()
   document.execCommand(command, false, value)
+  applyAutoDir()
   const md = htmlToMarkdown(editor.innerHTML)
   source.value = md
   scheduleSave(md)
@@ -164,11 +180,13 @@ const actions = {
   bold: () => exec('bold'),
   italic: () => exec('italic'),
   underline: () => exec('underline'),
+  strike: () => exec('strikeThrough'),
   bullet: () => exec('insertUnorderedList'),
   ordered: () => exec('insertOrderedList'),
   divider: () => exec('insertHorizontalRule'),
   code: insertCode,
   undo: () => exec('undo'),
+  redo: () => exec('redo'),
 }
 
 document.querySelectorAll('[data-action]').forEach((btn) => {
@@ -190,6 +208,7 @@ const stateMap = {
   bold: 'bold',
   italic: 'italic',
   underline: 'underline',
+  strike: 'strikeThrough',
   bullet: 'insertUnorderedList',
   ordered: 'insertOrderedList',
 }

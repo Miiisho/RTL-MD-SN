@@ -1,32 +1,21 @@
+/*
+ * الألوان مربوطة بمتغيّرات ثيم Standard Notes (StyleKit) مع قيم احتياطية فاتحة،
+ * فيتبع المحرر ثيم التطبيق (فاتح/داكن/مخصّص) بدل تتبّع وضع نظام الهاتف.
+ */
 :root {
-  --bg: #ffffff;
-  --fg: #23272e;
-  --muted: #8a919c;
-  --border: #e6e8ec;
-  --toolbar-bg: #f7f8fa;
-  --btn-hover: #eceef2;
-  --btn-active: #dfe3ea;
-  --accent: #086dd6;
-  --code-bg: #f2f3f5;
-  --code-fg: #b02a5b;
+  --bg: var(--sn-stylekit-editor-background-color, var(--sn-stylekit-background-color, #ffffff));
+  --fg: var(--sn-stylekit-editor-foreground-color, var(--sn-stylekit-foreground-color, #23272e));
+  --muted: var(--sn-stylekit-passive-color-1, var(--sn-stylekit-neutral-color, #8a919c));
+  --border: var(--sn-stylekit-border-color, #e6e8ec);
+  --toolbar-bg: var(--sn-stylekit-secondary-background-color, #f7f8fa);
+  --btn-hover: var(--sn-stylekit-contrast-background-color, #eceef2);
+  --btn-active: var(--sn-stylekit-secondary-contrast-background-color, #dfe3ea);
+  --accent: var(--sn-stylekit-info-color, #086dd6);
+  --code-bg: var(--sn-stylekit-contrast-background-color, #f2f3f5);
+  --code-fg: var(--sn-stylekit-danger-color, #b02a5b);
   --font: "Segoe UI", "SF Arabic", "Noto Sans Arabic", "Geeza Pro", "Helvetica Neue",
     -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1e24;
-    --fg: #e7e9ee;
-    --muted: #9aa0aa;
-    --border: #33363d;
-    --toolbar-bg: #24262d;
-    --btn-hover: #313440;
-    --btn-active: #3a3e4b;
-    --accent: #5aa2ff;
-    --code-bg: #2a2c33;
-    --code-fg: #ff8fb3;
-  }
 }
 
 * {
@@ -129,8 +118,13 @@ body {
   color: var(--fg);
   line-height: 1.85;
   direction: rtl;
-  text-align: right;
+  text-align: start;
   overflow-y: auto;
+}
+
+/* اتّجاه كل فقرة يُحدَّد تلقائيًا حسب لغتها (dir="auto") */
+.editor [dir="auto"] {
+  text-align: start;
 }
 
 .editor {
@@ -200,6 +194,10 @@ body.source-mode .source {
 }
 .editor a {
   color: var(--accent);
+}
+.editor del,
+.editor s {
+  text-decoration: line-through;
 }
 .editor code {
   background: var(--code-bg);
