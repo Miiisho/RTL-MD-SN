@@ -1,0 +1,26 @@
+{
+  "name": "rtl-md-sn",
+  "version": "1.0.0",
+  "description": "محرر Standard Notes بصيغة Markdown يكتب من اليمين إلى اليسار (RTL) مع شريط أدوات",
+  "main": "dist/editor.js",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "node build.mjs && npx --yes serve dist -l 8080"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:41729/git/Miiisho/RTL-MD-SN"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@standardnotes/component-relay": "^2.2.2",
+    "dompurify": "^3.4.12",
+    "marked": "^18.0.7"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}

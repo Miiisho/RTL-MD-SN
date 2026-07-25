@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>محرر RTL Markdown</title>
+    <link rel="stylesheet" href="editor.css" />
+  </head>
+  <body dir="rtl">
+    <div class="toolbar" role="toolbar" aria-label="أدوات التنسيق">
+      <button type="button" data-action="bold" title="عريض (Ctrl+B)" aria-label="عريض"><b>B</b></button>
+      <button type="button" data-action="italic" title="مائل (Ctrl+I)" aria-label="مائل"><i>I</i></button>
+      <button type="button" data-action="underline" title="تحته خط (Ctrl+U)" aria-label="تحته خط"><u>U</u></button>
+
+      <span class="sep" aria-hidden="true"></span>
+
+      <button type="button" data-action="bullet" title="قائمة نقطية" aria-label="نقاط">• ≡</button>
+      <button type="button" data-action="ordered" title="قائمة مرقّمة" aria-label="ترقيم">1. ≡</button>
+
+      <span class="sep" aria-hidden="true"></span>
+
+      <button type="button" data-action="divider" title="مقسّم الصفحات" aria-label="مقسم الصفحات">—</button>
+      <button type="button" data-action="code" title="كود" aria-label="كود">&lt;/&gt;</button>
+
+      <span class="sep" aria-hidden="true"></span>
+
+      <button type="button" data-action="undo" title="تراجع (العودة للوراء)" aria-label="تراجع">↩</button>
+
+      <span class="spacer"></span>
+      <button type="button" id="toggle-preview" title="إظهار/إخفاء المعاينة" aria-label="معاينة">👁</button>
+    </div>
+
+    <div class="workspace">
+      <textarea
+        id="editor"
+        dir="rtl"
+        spellcheck="true"
+        placeholder="اكتب ملاحظتك هنا بصيغة Markdown..."
+      ></textarea>
+      <div id="preview" class="preview" dir="rtl" aria-live="polite"></div>
+    </div>
+
+    <div id="status" class="status" aria-live="polite"></div>
+
+    <script src="editor.js"></script>
+  </body>
+</html>

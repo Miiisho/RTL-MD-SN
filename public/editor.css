@@ -1,0 +1,205 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --border: #e2e4e8;
+  --toolbar-bg: #f7f8fa;
+  --btn-hover: #e9ebf0;
+  --btn-active: #dde0e6;
+  --accent: #086dd6;
+  --code-bg: #f2f3f5;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, "Noto Sans Arabic",
+    "Helvetica Neue", Arial, sans-serif;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1e24;
+    --fg: #e6e7ea;
+    --muted: #9aa0aa;
+    --border: #33363d;
+    --toolbar-bg: #24262d;
+    --btn-hover: #313440;
+    --btn-active: #3a3e4b;
+    --accent: #4c9bff;
+    --code-bg: #2a2c33;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 15px;
+}
+
+/* شريط الأدوات */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.toolbar button {
+  min-width: 34px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg);
+  font-size: 15px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.toolbar button:hover {
+  background: var(--btn-hover);
+}
+
+.toolbar button:active {
+  background: var(--btn-active);
+}
+
+.toolbar .sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 6px;
+  background: var(--border);
+}
+
+.toolbar .spacer {
+  flex: 1;
+}
+
+/* مساحة العمل: محرر + معاينة */
+.workspace {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+#editor {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 18px;
+  border: none;
+  outline: none;
+  resize: none;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.7;
+  direction: rtl;
+  text-align: right;
+}
+
+.preview {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 18px;
+  overflow-y: auto;
+  border-inline-start: 1px solid var(--border);
+  direction: rtl;
+  text-align: right;
+  line-height: 1.8;
+}
+
+body.preview-hidden .preview {
+  display: none;
+}
+
+/* تنسيق محتوى المعاينة */
+.preview h1,
+.preview h2,
+.preview h3 {
+  line-height: 1.4;
+  margin: 0.8em 0 0.4em;
+}
+.preview p {
+  margin: 0.6em 0;
+}
+.preview ul,
+.preview ol {
+  padding-inline-start: 1.6em;
+  margin: 0.6em 0;
+}
+.preview hr {
+  border: none;
+  border-top: 2px dashed var(--border);
+  margin: 1.4em 0;
+}
+.preview code {
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.9em;
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+}
+.preview pre {
+  background: var(--code-bg);
+  padding: 12px 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  direction: ltr;
+  text-align: left;
+}
+.preview pre code {
+  background: none;
+  padding: 0;
+  display: block;
+}
+.preview blockquote {
+  margin: 0.6em 0;
+  padding-inline-start: 12px;
+  border-inline-start: 3px solid var(--border);
+  color: var(--muted);
+}
+.preview a {
+  color: var(--accent);
+}
+.preview table {
+  border-collapse: collapse;
+}
+.preview th,
+.preview td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+}
+
+.status {
+  padding: 2px 10px;
+  min-height: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* على الشاشات الضيّقة نُخفي المعاينة افتراضيًا لتوسعة المحرر */
+@media (max-width: 640px) {
+  .preview {
+    display: none;
+  }
+}
