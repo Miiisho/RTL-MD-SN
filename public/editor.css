@@ -89,6 +89,16 @@ body {
   color: var(--accent);
 }
 
+.toolbar button .txt {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+.toolbar button .txt sub {
+  font-size: 0.7em;
+  font-weight: 600;
+}
+
 .toolbar .sep {
   width: 1px;
   height: 22px;
@@ -170,6 +180,36 @@ body.source-mode .source {
   font-size: 1.15em;
   margin: 0.6em 0 0.35em;
 }
+
+/* سهم الطيّ في أول العنوان (H1/H2/H3) */
+.editor h1,
+.editor h2,
+.editor h3 {
+  position: relative;
+  padding-inline-start: 1.15em;
+}
+.editor h1::before,
+.editor h2::before,
+.editor h3::before {
+  content: "▾";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.12em;
+  width: 1em;
+  text-align: center;
+  font-size: 0.7em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.editor h1.collapsed::before,
+.editor h2.collapsed::before,
+.editor h3.collapsed::before {
+  content: "▸";
+}
+.folded-hidden {
+  display: none !important;
+}
 .editor p {
   margin: 0.5em 0;
 }
@@ -227,12 +267,104 @@ body.source-mode .source {
 .editor table {
   border-collapse: collapse;
   margin: 0.6em 0;
+  min-width: 40%;
 }
 .editor th,
 .editor td {
   border: 1px solid var(--border);
   padding: 6px 10px;
+  min-width: 40px;
+}
+.editor th {
+  background: var(--toolbar-bg);
+  font-weight: 700;
 }
 .editor img {
   max-width: 100%;
+}
+
+/* ------------------------------ نافذة الجدول ----------------------------- */
+.popover {
+  display: none;
+  position: fixed;
+  inset-block-start: 52px;
+  inset-inline-start: 12px;
+  z-index: 20;
+  min-width: 240px;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+}
+.popover.open {
+  display: block;
+}
+.pop-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.pop-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.pop-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.pop-row input[type="number"] {
+  width: 56px;
+  padding: 5px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+}
+.pop-label {
+  font-size: 14px;
+  color: var(--muted);
+}
+.pop-choice {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+}
+.pop-choice.sel {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.pop-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.pop-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+}
+.pop-btn.ghost {
+  background: transparent;
+  color: var(--fg);
+}
+.pop-btn.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }
