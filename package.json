@@ -18,7 +18,8 @@
   "dependencies": {
     "@standardnotes/component-relay": "^2.2.2",
     "dompurify": "^3.4.12",
-    "marked": "^18.0.7"
+    "marked": "^18.0.7",
+    "turndown": "^7.2.4"
   },
   "devDependencies": {
     "esbuild": "^0.28.1"

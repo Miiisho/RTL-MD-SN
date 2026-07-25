@@ -1,29 +1,31 @@
 :root {
   --bg: #ffffff;
-  --fg: #1a1a1a;
-  --muted: #6b7280;
-  --border: #e2e4e8;
+  --fg: #23272e;
+  --muted: #8a919c;
+  --border: #e6e8ec;
   --toolbar-bg: #f7f8fa;
-  --btn-hover: #e9ebf0;
-  --btn-active: #dde0e6;
+  --btn-hover: #eceef2;
+  --btn-active: #dfe3ea;
   --accent: #086dd6;
   --code-bg: #f2f3f5;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, "Noto Sans Arabic",
-    "Helvetica Neue", Arial, sans-serif;
+  --code-fg: #b02a5b;
+  --font: "Segoe UI", "SF Arabic", "Noto Sans Arabic", "Geeza Pro", "Helvetica Neue",
+    -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #1c1e24;
-    --fg: #e6e7ea;
+    --fg: #e7e9ee;
     --muted: #9aa0aa;
     --border: #33363d;
     --toolbar-bg: #24262d;
     --btn-hover: #313440;
     --btn-active: #3a3e4b;
-    --accent: #4c9bff;
+    --accent: #5aa2ff;
     --code-bg: #2a2c33;
+    --code-fg: #ff8fb3;
   }
 }
 
@@ -44,38 +46,43 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font);
-  font-size: 15px;
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
 }
 
-/* شريط الأدوات */
+/* ------------------------------- شريط الأدوات ------------------------------ */
 .toolbar {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 6px 8px;
+  padding: 6px 10px;
   background: var(--toolbar-bg);
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .toolbar button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 32px;
+  width: 38px;
+  height: 36px;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: var(--fg);
   cursor: pointer;
   transition: background 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .toolbar button svg {
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -90,6 +97,7 @@ body {
 .toolbar button:active,
 .toolbar button.is-active {
   background: var(--btn-active);
+  color: var(--accent);
 }
 
 .toolbar .sep {
@@ -103,115 +111,130 @@ body {
   flex: 1;
 }
 
-/* مساحة العمل: محرر + معاينة */
+/* ------------------------------ مساحة التحرير ----------------------------- */
 .workspace {
   flex: 1;
-  display: flex;
   min-height: 0;
+  display: flex;
 }
 
-#editor {
+.editor,
+.source {
   flex: 1;
   min-width: 0;
-  padding: 16px 18px;
+  padding: 18px 20px;
   border: none;
   outline: none;
-  resize: none;
   background: var(--bg);
   color: var(--fg);
+  line-height: 1.85;
+  direction: rtl;
+  text-align: right;
+  overflow-y: auto;
+}
+
+.editor {
+  font-family: var(--font);
+  font-size: 17px;
+}
+
+/* نص إرشادي عندما يكون المحرر فارغًا */
+.editor:empty::before,
+.editor > p:only-child:empty::before {
+  content: "اكتب ملاحظتك هنا…";
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* عرض المصدر (textarea) يظهر فقط في وضع المصدر */
+.source {
+  display: none;
+  resize: none;
   font-family: var(--mono);
   font-size: 15px;
-  line-height: 1.7;
-  direction: rtl;
-  text-align: right;
 }
 
-.preview {
-  flex: 1;
-  min-width: 0;
-  padding: 16px 18px;
-  overflow-y: auto;
-  border-inline-start: 1px solid var(--border);
-  direction: rtl;
-  text-align: right;
-  line-height: 1.8;
-}
-
-body.preview-hidden .preview {
+body.source-mode .editor {
   display: none;
 }
+body.source-mode .source {
+  display: block;
+}
 
-/* تنسيق محتوى المعاينة */
-.preview h1,
-.preview h2,
-.preview h3 {
-  line-height: 1.4;
-  margin: 0.8em 0 0.4em;
+/* --------------------------- تنسيق محتوى المحرر --------------------------- */
+.editor h1 {
+  font-size: 1.6em;
+  margin: 0.6em 0 0.35em;
+  line-height: 1.3;
 }
-.preview p {
-  margin: 0.6em 0;
+.editor h2 {
+  font-size: 1.35em;
+  margin: 0.6em 0 0.35em;
+  line-height: 1.3;
 }
-.preview ul,
-.preview ol {
-  padding-inline-start: 1.6em;
-  margin: 0.6em 0;
+.editor h3 {
+  font-size: 1.15em;
+  margin: 0.6em 0 0.35em;
 }
-.preview hr {
+.editor p {
+  margin: 0.5em 0;
+}
+.editor ul,
+.editor ol {
+  padding-inline-start: 1.7em;
+  margin: 0.5em 0;
+}
+.editor li {
+  margin: 0.15em 0;
+}
+.editor hr {
   border: none;
   border-top: 2px dashed var(--border);
-  margin: 1.4em 0;
+  margin: 1.3em 0;
 }
-.preview code {
+.editor blockquote {
+  margin: 0.6em 0;
+  padding-inline-start: 14px;
+  border-inline-start: 3px solid var(--border);
+  color: var(--muted);
+}
+.editor a {
+  color: var(--accent);
+}
+.editor code {
   background: var(--code-bg);
-  padding: 0.1em 0.4em;
-  border-radius: 4px;
+  color: var(--code-fg);
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
   font-family: var(--mono);
-  font-size: 0.9em;
+  font-size: 0.88em;
   direction: ltr;
   unicode-bidi: embed;
-  display: inline-block;
 }
-.preview pre {
+.editor pre {
   background: var(--code-bg);
-  padding: 12px 14px;
-  border-radius: 8px;
+  padding: 14px 16px;
+  border-radius: 10px;
   overflow-x: auto;
   direction: ltr;
   text-align: left;
 }
-.preview pre code {
+.editor pre code {
   background: none;
+  color: inherit;
   padding: 0;
   display: block;
+  font-size: 0.9em;
 }
-.preview blockquote {
-  margin: 0.6em 0;
-  padding-inline-start: 12px;
-  border-inline-start: 3px solid var(--border);
-  color: var(--muted);
-}
-.preview a {
-  color: var(--accent);
-}
-.preview table {
+.editor table {
   border-collapse: collapse;
+  margin: 0.6em 0;
 }
-.preview th,
-.preview td {
+.editor th,
+.editor td {
   border: 1px solid var(--border);
   padding: 6px 10px;
 }
-
-.status {
-  padding: 2px 10px;
-  min-height: 0;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* على الشاشات الضيّقة نُخفي المعاينة افتراضيًا لتوسعة المحرر */
-@media (max-width: 640px) {
-  .preview {
-    display: none;
-  }
+.editor img {
+  max-width: 100%;
 }

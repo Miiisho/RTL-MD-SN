@@ -1,76 +1,85 @@
 /**
- * محرر RTL بصيغة Markdown لتطبيق Standard Notes
- * RTL Markdown editor plugin for Standard Notes
+ * محرر RTL بصيغة Markdown لتطبيق Standard Notes — نمط WYSIWYG
  *
- * يوفّر:
- *  - كتابة من اليمين إلى اليسار (RTL)
- *  - شريط أدوات: عريض (B) / مائل (I) / تحته خط (U)
- *  - النقاط (قائمة نقطية) والترقيم (قائمة مرقمة)
- *  - مقسّم الصفحات (خط أفقي)
- *  - زر العودة للوراء (تراجع)
- *  - زر الكود (كود مضمّن / كتلة كود)
- *  - معاينة حيّة للـ Markdown
+ * يعرض التنسيق مباشرةً (نقاط فعلية، نص عريض، كود منسّق…) بلا رموز خام،
+ * بينما يُخزّن المحتوى في الملاحظة بصيغة Markdown.
+ *
+ * شريط الأدوات: عريض (B) / مائل (I) / تحته خط (U)، النقاط، الترقيم،
+ * مقسّم الصفحات، الكود، التراجع (العودة للوراء)، وزر إظهار مصدر Markdown.
  */
 
 import ComponentRelay from '@standardnotes/component-relay'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import TurndownService from 'turndown'
 
 // --------------------------------------------------------------------------
-// إعداد جسر التواصل مع تطبيق Standard Notes
+// عناصر الواجهة
+// --------------------------------------------------------------------------
+
+const editor = document.getElementById('editor') // contenteditable (WYSIWYG)
+const source = document.getElementById('source') // textarea (مصدر Markdown)
+
+// --------------------------------------------------------------------------
+// محوّلات Markdown ⇄ HTML
+// --------------------------------------------------------------------------
+
+const turndown = new TurndownService({
+  headingStyle: 'atx',
+  hr: '---',
+  bulletListMarker: '-',
+  codeBlockStyle: 'fenced',
+  emDelimiter: '*',
+})
+
+// الإبقاء على <u> (لا يوجد له مقابل في Markdown القياسي)
+turndown.addRule('underline', {
+  filter: ['u'],
+  replacement: (content) => `<u>${content}</u>`,
+})
+
+function markdownToHtml(md) {
+  const dirty = marked.parse(md || '', { breaks: true, gfm: true })
+  return DOMPurify.sanitize(dirty, { ADD_ATTR: ['dir'] })
+}
+
+function htmlToMarkdown(html) {
+  return turndown.turndown(html || '').trim()
+}
+
+// --------------------------------------------------------------------------
+// جسر التواصل مع Standard Notes
 // --------------------------------------------------------------------------
 
 let workingNote = null
 let componentRelay = null
-let lastValue = null
-let ignoreNextChange = false
+let lastSavedMarkdown = null
+let saveTimer = null
 
-const textarea = document.getElementById('editor')
-const preview = document.getElementById('preview')
-const status = document.getElementById('status')
-
-/** حفظ نص الملاحظة في Standard Notes */
-function saveNote(text) {
+function saveNote(markdown) {
   if (!componentRelay || !workingNote) return
+  if (markdown === lastSavedMarkdown) return
+  lastSavedMarkdown = markdown
   componentRelay.saveItemWithPresave(workingNote, () => {
-    workingNote.content.text = text
+    workingNote.content.text = markdown
   })
 }
 
-/** إعادة رسم المعاينة الحيّة من الـ Markdown */
-function renderPreview(text) {
-  const dirty = marked.parse(text || '', { breaks: true, gfm: true })
-  preview.innerHTML = DOMPurify.sanitize(dirty, { ADD_ATTR: ['dir'] })
+/** جدولة حفظ مؤجّل لتقليل عدد عمليات الكتابة */
+function scheduleSave(markdown) {
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => saveNote(markdown), 350)
 }
 
-/** ضبط قيمة المحرر (من التطبيق) دون إطلاق حفظ عكسي */
-function setEditorValue(text) {
-  ignoreNextChange = true
-  textarea.value = text || ''
-  lastValue = textarea.value
-  renderPreview(textarea.value)
+function loadMarkdownIntoEditor(md) {
+  editor.innerHTML = markdownToHtml(md) || '<p><br></p>'
+  source.value = md || ''
+  lastSavedMarkdown = md || ''
 }
-
-/** يُستدعى عند تغيير المستخدم للنص */
-function onInput() {
-  if (ignoreNextChange) {
-    ignoreNextChange = false
-    return
-  }
-  const text = textarea.value
-  if (text === lastValue) return
-  lastValue = text
-  renderPreview(text)
-  saveNote(text)
-}
-
-textarea.addEventListener('input', onInput)
 
 function initComponentRelay() {
   componentRelay = new ComponentRelay({
-    initialPermissions: [
-      { name: 'stream-context-item' },
-    ],
+    initialPermissions: [{ name: 'stream-context-item' }],
     targetWindow: window,
     onReady: () => {
       document.documentElement.classList.add('sn-ready')
@@ -82,23 +91,15 @@ function initComponentRelay() {
   componentRelay.streamContextItem((note) => {
     if (!note) return
     workingNote = note
-
-    // منع تكرار الحفظ إذا كان التحديث قادمًا من نفس المحرر
     if (note.isMetadataUpdate) return
-
     const incoming = note.content.text || ''
-    if (incoming !== textarea.value) {
-      setEditorValue(incoming)
+    // لا نعيد التحميل إذا كان النص هو نفسه الذي كتبناه للتوّ (تجنّب فقدان المؤشر)
+    if (incoming !== lastSavedMarkdown) {
+      loadMarkdownIntoEditor(incoming)
     }
-    setStatus('')
   })
 }
 
-function setStatus(msg) {
-  if (status) status.textContent = msg
-}
-
-// إن لم نكن داخل Standard Notes (تشغيل مستقل للتجربة) نعمل بوضع محلي
 try {
   initComponentRelay()
 } catch (e) {
@@ -106,127 +107,130 @@ try {
 }
 
 // --------------------------------------------------------------------------
-// أدوات تحرير الـ Markdown (شريط الأدوات)
+// المزامنة عند التحرير
 // --------------------------------------------------------------------------
 
-/** إدراج/تغليف النص المحدد بعلامات markdown */
-function wrapSelection(before, after = before, placeholder = '') {
-  const start = textarea.selectionStart
-  const end = textarea.selectionEnd
-  const value = textarea.value
-  const selected = value.slice(start, end) || placeholder
+let sourceMode = false
 
-  const newText = value.slice(0, start) + before + selected + after + value.slice(end)
-  textarea.value = newText
+editor.addEventListener('input', () => {
+  if (sourceMode) return
+  const md = htmlToMarkdown(editor.innerHTML)
+  source.value = md
+  scheduleSave(md)
+  updateToolbarState()
+})
 
-  // إعادة ضبط التحديد داخل الغلاف
-  const selStart = start + before.length
-  textarea.selectionStart = selStart
-  textarea.selectionEnd = selStart + selected.length
-  textarea.focus()
-  fireInput()
+source.addEventListener('input', () => {
+  if (!sourceMode) return
+  scheduleSave(source.value)
+})
+
+// --------------------------------------------------------------------------
+// أوامر شريط الأدوات
+// --------------------------------------------------------------------------
+
+function exec(command, value = null) {
+  editor.focus()
+  document.execCommand(command, false, value)
+  const md = htmlToMarkdown(editor.innerHTML)
+  source.value = md
+  scheduleSave(md)
+  updateToolbarState()
 }
 
-/** إضافة بادئة لكل سطر محدد (للقوائم والاقتباس) */
-function prefixLines(makePrefix) {
-  const start = textarea.selectionStart
-  const end = textarea.selectionEnd
-  const value = textarea.value
-
-  // توسيع التحديد ليشمل الأسطر كاملة
-  const lineStart = value.lastIndexOf('\n', start - 1) + 1
-  let lineEnd = value.indexOf('\n', end)
-  if (lineEnd === -1) lineEnd = value.length
-
-  const block = value.slice(lineStart, lineEnd)
-  const lines = block.split('\n')
-  const transformed = lines.map((line, i) => makePrefix(line, i)).join('\n')
-
-  textarea.value = value.slice(0, lineStart) + transformed + value.slice(lineEnd)
-  textarea.selectionStart = lineStart
-  textarea.selectionEnd = lineStart + transformed.length
-  textarea.focus()
-  fireInput()
+/** إدراج كتلة/سطر كود حسب التحديد */
+function insertCode() {
+  editor.focus()
+  const sel = window.getSelection()
+  const text = sel && sel.toString()
+  if (text && !text.includes('\n')) {
+    // كود مضمّن
+    document.execCommand('insertHTML', false, `<code>${escapeHtml(text)}</code>`)
+  } else {
+    // كتلة كود
+    const content = escapeHtml(text || 'الكود هنا')
+    document.execCommand('insertHTML', false, `<pre><code>${content}</code></pre><p><br></p>`)
+  }
+  const md = htmlToMarkdown(editor.innerHTML)
+  source.value = md
+  scheduleSave(md)
 }
 
-/** إدراج نص في موضع المؤشر */
-function insertAtCursor(text) {
-  const start = textarea.selectionStart
-  const end = textarea.selectionEnd
-  const value = textarea.value
-  textarea.value = value.slice(0, start) + text + value.slice(end)
-  const pos = start + text.length
-  textarea.selectionStart = textarea.selectionEnd = pos
-  textarea.focus()
-  fireInput()
-}
-
-/** إطلاق حدث input يدويًا بعد تعديل برمجي */
-function fireInput() {
-  textarea.dispatchEvent(new Event('input', { bubbles: true }))
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
 const actions = {
-  bold: () => wrapSelection('**', '**', 'نص عريض'),
-  italic: () => wrapSelection('*', '*', 'نص مائل'),
-  // Markdown لا يدعم underline أصلاً، نستخدم HTML المضمّن
-  underline: () => wrapSelection('<u>', '</u>', 'نص تحته خط'),
-  bullet: () => prefixLines((line) => (line.trim() ? `- ${line.replace(/^[-*]\s+/, '')}` : line)),
-  ordered: () =>
-    prefixLines((line, i) => (line.trim() ? `${i + 1}. ${line.replace(/^\d+\.\s+/, '')}` : line)),
-  divider: () => insertAtCursor('\n\n---\n\n'),
-  code: () => {
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const selected = textarea.value.slice(start, end)
-    if (selected.includes('\n') || selected === '') {
-      // كتلة كود متعددة الأسطر
-      wrapSelection('\n```\n', '\n```\n', 'الكود هنا')
-    } else {
-      // كود مضمّن
-      wrapSelection('`', '`', 'كود')
-    }
-  },
-  undo: () => {
-    textarea.focus()
-    document.execCommand('undo')
-    fireInput()
-  },
+  bold: () => exec('bold'),
+  italic: () => exec('italic'),
+  underline: () => exec('underline'),
+  bullet: () => exec('insertUnorderedList'),
+  ordered: () => exec('insertOrderedList'),
+  divider: () => exec('insertHorizontalRule'),
+  code: insertCode,
+  undo: () => exec('undo'),
 }
 
 document.querySelectorAll('[data-action]').forEach((btn) => {
-  btn.addEventListener('mousedown', (e) => e.preventDefault()) // إبقاء التركيز على المحرر
-  btn.addEventListener('click', () => {
-    const action = actions[btn.dataset.action]
-    if (action) action()
+  // منع فقدان التحديد عند الضغط (يعمل للفأرة واللمس)
+  btn.addEventListener('pointerdown', (e) => e.preventDefault())
+  btn.addEventListener('mousedown', (e) => e.preventDefault())
+  btn.addEventListener('click', (e) => {
+    e.preventDefault()
+    const fn = actions[btn.dataset.action]
+    if (fn) fn()
   })
 })
 
-// اختصارات لوحة المفاتيح المألوفة
-textarea.addEventListener('keydown', (e) => {
-  const mod = e.ctrlKey || e.metaKey
-  if (!mod) return
-  const key = e.key.toLowerCase()
-  if (key === 'b') {
-    e.preventDefault()
-    actions.bold()
-  } else if (key === 'i') {
-    e.preventDefault()
-    actions.italic()
-  } else if (key === 'u') {
-    e.preventDefault()
-    actions.underline()
-  }
-})
+// --------------------------------------------------------------------------
+// إبراز الأزرار النشطة حسب موضع المؤشر
+// --------------------------------------------------------------------------
 
-// زر إظهار/إخفاء المعاينة
-const toggleBtn = document.getElementById('toggle-preview')
-if (toggleBtn) {
-  toggleBtn.addEventListener('mousedown', (e) => e.preventDefault())
-  toggleBtn.addEventListener('click', () => {
-    document.body.classList.toggle('preview-hidden')
+const stateMap = {
+  bold: 'bold',
+  italic: 'italic',
+  underline: 'underline',
+  bullet: 'insertUnorderedList',
+  ordered: 'insertOrderedList',
+}
+
+function updateToolbarState() {
+  document.querySelectorAll('[data-action]').forEach((btn) => {
+    const cmd = stateMap[btn.dataset.action]
+    if (!cmd) return
+    let active = false
+    try {
+      active = document.queryCommandState(cmd)
+    } catch (_) {}
+    btn.classList.toggle('is-active', active)
   })
 }
 
-// معاينة أولية فارغة
-renderPreview('')
+document.addEventListener('selectionchange', () => {
+  if (!sourceMode) updateToolbarState()
+})
+
+// --------------------------------------------------------------------------
+// زر إظهار/إخفاء مصدر Markdown
+// --------------------------------------------------------------------------
+
+const toggleBtn = document.getElementById('toggle-source')
+if (toggleBtn) {
+  toggleBtn.addEventListener('pointerdown', (e) => e.preventDefault())
+  toggleBtn.addEventListener('click', () => {
+    sourceMode = !sourceMode
+    document.body.classList.toggle('source-mode', sourceMode)
+    toggleBtn.classList.toggle('is-active', sourceMode)
+    if (sourceMode) {
+      // WYSIWYG → مصدر
+      source.value = htmlToMarkdown(editor.innerHTML)
+    } else {
+      // مصدر → WYSIWYG
+      loadMarkdownIntoEditor(source.value)
+      lastSavedMarkdown = source.value // منع إعادة تحميل غير ضرورية
+    }
+  })
+}
+
+// تحميل مبدئي (وضع مستقل للتجربة)
+loadMarkdownIntoEditor('')

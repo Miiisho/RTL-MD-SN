@@ -43,22 +43,30 @@
       </button>
 
       <span class="spacer"></span>
-      <button type="button" id="toggle-preview" title="إظهار/إخفاء المعاينة" aria-label="معاينة">
-        <svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <button type="button" id="toggle-source" title="إظهار مصدر Markdown" aria-label="مصدر Markdown">
+        <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
       </button>
     </div>
 
     <div class="workspace">
-      <textarea
+      <div
         id="editor"
+        class="editor"
+        contenteditable="true"
         dir="rtl"
         spellcheck="true"
-        placeholder="اكتب ملاحظتك هنا بصيغة Markdown..."
+        role="textbox"
+        aria-multiline="true"
+        aria-label="محرر النص"
+      ></div>
+      <textarea
+        id="source"
+        class="source"
+        dir="rtl"
+        spellcheck="false"
+        aria-label="مصدر Markdown"
       ></textarea>
-      <div id="preview" class="preview" dir="rtl" aria-live="polite"></div>
     </div>
-
-    <div id="status" class="status" aria-live="polite"></div>
 
     <script src="editor.js"></script>
   </body>
