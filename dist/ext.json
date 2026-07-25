@@ -1,0 +1,18 @@
+{
+  "identifier": "com.miiisho.rtl-md-editor",
+  "name": "محرر RTL Markdown",
+  "content_type": "SN|Component",
+  "area": "editor-editor",
+  "version": "1.0.0",
+  "description": "محرر Markdown يكتب من اليمين إلى اليسار (RTL) مع شريط أدوات: عريض/مائل/تحته خط، نقاط وترقيم، مقسّم صفحات، تراجع، وكود، مع معاينة حيّة.",
+  "url": "https://miiisho.github.io/rtl-md-sn/index.html",
+  "download_url": "https://github.com/miiisho/rtl-md-sn/archive/refs/heads/claude/standard-notes-rtl-plugin-vccs1k.zip",
+  "latest_url": "https://miiisho.github.io/rtl-md-sn/ext.json",
+  "flags": ["RTL", "Markdown"],
+  "dock_icon": {
+    "type": "circle",
+    "background_color": "#086dd6",
+    "foreground_color": "#ffffff",
+    "border_color": "#086dd6"
+  }
+}
