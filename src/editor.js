@@ -454,9 +454,20 @@ function updateTableTools() {
   activeCell = cell
   const table = cell.closest('table')
   const rect = table.getBoundingClientRect()
-  tableTools.style.top = Math.max(4, rect.top - 44) + 'px'
-  tableTools.style.left = Math.min(rect.left, window.innerWidth - tableTools.offsetWidth - 8) + 'px'
+  // نُظهر الشريط أولًا لقياس أبعاده الحقيقية، ثم نُبقيه داخل حدود الشاشة
   tableTools.classList.add('open')
+  const margin = 8
+  const tw = tableTools.offsetWidth
+  const th = tableTools.offsetHeight
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  let left = Math.min(rect.left, vw - tw - margin)
+  left = Math.max(margin, left)
+  let top = rect.top - th - margin
+  if (top < margin) top = Math.min(rect.bottom + margin, vh - th - margin)
+  top = Math.max(margin, top)
+  tableTools.style.left = left + 'px'
+  tableTools.style.top = top + 'px'
 }
 
 function cellIndex(cell) {

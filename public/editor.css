@@ -344,7 +344,11 @@ body.source-mode .source {
   inset-block-start: 52px;
   inset-inline-start: 12px;
   z-index: 20;
-  min-width: 240px;
+  box-sizing: border-box;
+  width: 240px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 64px);
+  overflow: auto;
   padding: 14px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -434,6 +438,10 @@ body.source-mode .source {
   border: 1px solid var(--border);
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  box-sizing: border-box;
+  max-width: calc(100vw - 16px);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .table-tools.open {
   display: flex;
