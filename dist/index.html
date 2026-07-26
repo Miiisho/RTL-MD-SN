@@ -41,6 +41,9 @@
       <button type="button" data-action="ordered" title="قائمة مرقّمة (الترقيم)" aria-label="ترقيم">
         <svg viewBox="0 0 24 24"><line x1="10" y1="6" x2="20" y2="6"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><text x="2.5" y="8.5" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="2.5" y="20.5" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">2</text></svg>
       </button>
+      <button type="button" data-action="task" title="قائمة مهام (To-Do)" aria-label="قائمة مهام">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="7" rx="1.5"/><polyline points="4.5 7.5 6 9 9 5.5"/><line x1="13" y1="6" x2="20" y2="6"/><line x1="13" y1="12" x2="20" y2="12"/><line x1="13" y1="18" x2="20" y2="18"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+      </button>
 
       <span class="sep" aria-hidden="true"></span>
 
@@ -90,6 +93,14 @@
         spellcheck="false"
         aria-label="مصدر Markdown"
       ></textarea>
+    </div>
+
+    <div id="table-tools" class="table-tools" role="toolbar" aria-label="التحكم بالجدول">
+      <button type="button" data-tt="add-row" title="إضافة صف">＋ صف</button>
+      <button type="button" data-tt="add-col" title="إضافة عمود">＋ عمود</button>
+      <button type="button" data-tt="del-row" title="حذف صف">－ صف</button>
+      <button type="button" data-tt="del-col" title="حذف عمود">－ عمود</button>
+      <button type="button" data-tt="del-table" title="حذف الجدول" class="danger">🗑</button>
     </div>
 
     <div id="table-popover" class="popover" role="dialog" aria-label="إدراج جدول">

@@ -223,8 +223,35 @@ body.source-mode .source {
 }
 .editor hr {
   border: none;
-  border-top: 2px dashed var(--border);
+  border-top: 1px solid var(--border);
   margin: 1.3em 0;
+}
+
+/* قوائم المهام (To-Do) */
+.editor ul.task-list,
+.editor li.task-item {
+  list-style: none;
+}
+.editor ul.task-list {
+  padding-inline-start: 0.5em;
+}
+.editor li.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.editor li.task-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 0.25em;
+  flex: 0 0 auto;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+.editor li.task-item input[type="checkbox"]:checked + * ,
+.editor li.task-item:has(input:checked) {
+  color: var(--muted);
+  text-decoration: line-through;
 }
 .editor blockquote {
   margin: 0.6em 0;
@@ -367,4 +394,38 @@ body.source-mode .source {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+}
+
+/* ---------------------- شريط التحكم بالجدول (عائم) ---------------------- */
+.table-tools {
+  display: none;
+  position: fixed;
+  z-index: 15;
+  gap: 4px;
+  padding: 5px 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+}
+.table-tools.open {
+  display: flex;
+}
+.table-tools button {
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.table-tools button:hover {
+  background: var(--btn-hover);
+}
+.table-tools button.danger {
+  color: #d13b3b;
+  border-color: transparent;
 }
