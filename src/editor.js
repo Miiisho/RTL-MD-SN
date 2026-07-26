@@ -821,5 +821,35 @@ if (toggleBtn) {
   })
 }
 
+// --------------------------------------------------------------------------
+// اختيار نوع الخط (يُحفظ محليًا)
+// --------------------------------------------------------------------------
+
+const fontSelect = document.getElementById('font-select')
+const FONT_KEY = 'rtlmd-font'
+const FONTS = ['sans', 'serif', 'alt', 'mono']
+
+function applyFont(name) {
+  const font = FONTS.includes(name) ? name : 'sans'
+  FONTS.forEach((f) => editor.classList.remove('font-' + f))
+  editor.classList.add('font-' + font)
+}
+
+if (fontSelect) {
+  let saved = 'sans'
+  try {
+    saved = localStorage.getItem(FONT_KEY) || 'sans'
+  } catch (_) {}
+  fontSelect.value = saved
+  applyFont(saved)
+  fontSelect.addEventListener('change', () => {
+    applyFont(fontSelect.value)
+    try {
+      localStorage.setItem(FONT_KEY, fontSelect.value)
+    } catch (_) {}
+    editor.focus()
+  })
+}
+
 // تحميل مبدئي
 loadMarkdownIntoEditor('')

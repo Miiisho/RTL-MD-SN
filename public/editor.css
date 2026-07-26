@@ -110,6 +110,19 @@ body {
   flex: 1;
 }
 
+.toolbar .font-select {
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 13px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ------------------------------ مساحة التحرير ----------------------------- */
 .workspace {
   flex: 1;
@@ -140,6 +153,20 @@ body {
 .editor {
   font-family: var(--font);
   font-size: 17px;
+}
+
+/* أنواع الخطوط المتاحة (نظيفة، بلا تحميل خارجي) */
+.editor.font-sans {
+  font-family: var(--font);
+}
+.editor.font-serif {
+  font-family: "Amiri", "Noto Naskh Arabic", "Times New Roman", Georgia, serif;
+}
+.editor.font-alt {
+  font-family: Tahoma, "Geeza Pro", "Segoe UI", Arial, sans-serif;
+}
+.editor.font-mono {
+  font-family: "SFMono-Regular", "Noto Sans Mono", Consolas, Menlo, monospace;
 }
 
 /* نص إرشادي عندما يكون المحرر فارغًا */
