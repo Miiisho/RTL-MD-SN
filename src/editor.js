@@ -61,11 +61,26 @@ turndown.addRule('taskCheckbox', {
     (node.checked || node.getAttribute('checked') !== null ? '[x] ' : '[ ] '),
 })
 
+// الفقرات/العناوين ذات المحاذاة تُحفظ كـ HTML بسيط لتبقى بعد إعادة التحميل
+turndown.addRule('alignedBlock', {
+  filter: (node) =>
+    /^(P|H1|H2|H3|H4|H5|H6|DIV)$/.test(node.nodeName) &&
+    node.style &&
+    node.style.textAlign,
+  replacement: (content, node) => {
+    const clean = node.cloneNode(true)
+    clean.removeAttribute('data-align')
+    clean.removeAttribute('data-dir-manual')
+    clean.removeAttribute('class')
+    return `\n\n${clean.outerHTML}\n\n`
+  },
+})
+
 function markdownToHtml(md) {
   const dirty = marked.parse(md || '', { breaks: true, gfm: true })
   return DOMPurify.sanitize(dirty, {
     ADD_TAGS: ['input'],
-    ADD_ATTR: ['dir', 'scope', 'colspan', 'rowspan', 'type', 'checked', 'disabled'],
+    ADD_ATTR: ['dir', 'scope', 'colspan', 'rowspan', 'type', 'checked', 'disabled', 'style'],
   })
 }
 
@@ -333,6 +348,34 @@ function toggleDir() {
   afterChange(true)
 }
 
+/** أقرب عنصر قابل للمحاذاة (فقرة/عنوان/خلية/عنصر قائمة) */
+function getAlignTarget() {
+  const sel = window.getSelection()
+  if (!sel || !sel.rangeCount) return getCurrentBlock()
+  let node = sel.anchorNode
+  if (node && node.nodeType === 3) node = node.parentNode
+  const t =
+    node && node.closest
+      ? node.closest('td, th, li, p, h1, h2, h3, h4, h5, h6, blockquote')
+      : null
+  return t || getCurrentBlock()
+}
+
+/** ضبط محاذاة النص (start/right/center/left) */
+function setAlign(align) {
+  editor.focus()
+  const el = getAlignTarget()
+  if (!el) return
+  if (align === 'start') {
+    el.style.removeProperty('text-align')
+    delete el.dataset.align
+  } else {
+    el.style.textAlign = align
+    el.dataset.align = align
+  }
+  afterChange(true)
+}
+
 /** كود مضمّن أو كتلة حسب التحديد */
 function insertCode() {
   editor.focus()
@@ -479,12 +522,40 @@ function tableDelTable() {
   afterChange(true)
 }
 
+/** توسيط الجدول (تبديل) */
+function tableCenter() {
+  if (!activeCell) return
+  const table = activeCell.closest('table')
+  const centered = table.style.marginInline === 'auto'
+  if (centered) {
+    table.style.removeProperty('margin-inline')
+  } else {
+    table.style.marginInline = 'auto'
+  }
+  afterChange(true)
+}
+
+/** توسيع الجدول لكامل العرض (تبديل) */
+function tableWiden() {
+  if (!activeCell) return
+  const table = activeCell.closest('table')
+  const full = table.style.width === '100%'
+  if (full) {
+    table.style.removeProperty('width')
+  } else {
+    table.style.width = '100%'
+  }
+  afterChange(true)
+}
+
 if (tableTools) {
   const map = {
     'add-row': tableAddRow,
     'add-col': tableAddCol,
     'del-row': tableDelRow,
     'del-col': tableDelCol,
+    center: tableCenter,
+    widen: tableWiden,
     'del-table': tableDelTable,
   }
   tableTools.querySelectorAll('[data-tt]').forEach((b) => {
@@ -617,6 +688,9 @@ const actions = {
   divider: () => exec('insertHorizontalRule'),
   code: insertCode,
   dir: toggleDir,
+  'align-right': () => setAlign('right'),
+  'align-center': () => setAlign('center'),
+  'align-left': () => setAlign('left'),
   table: () => openTablePopover(),
   undo: doUndo,
   redo: doRedo,
