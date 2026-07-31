@@ -702,6 +702,8 @@ const actions = {
   'align-right': () => setAlign('right'),
   'align-center': () => setAlign('center'),
   'align-left': () => setAlign('left'),
+  'font-bigger': () => changeFontSize(1),
+  'font-smaller': () => changeFontSize(-1),
   table: () => openTablePopover(),
   undo: doUndo,
   redo: doRedo,
@@ -860,6 +862,41 @@ if (fontSelect) {
     } catch (_) {}
     editor.focus()
   })
+}
+
+// --------------------------------------------------------------------------
+// مقاس الخط (أزرار + خانة رقمية، يُحفظ محليًا)
+// --------------------------------------------------------------------------
+
+const SIZE_KEY = 'rtlmd-fontsize'
+const SIZE_MIN = 12
+const SIZE_MAX = 40
+const sizeInput = document.getElementById('font-size-input')
+let fontSize = 17
+
+function applyFontSize(px) {
+  const n = Math.round(+px) || 17
+  fontSize = Math.min(SIZE_MAX, Math.max(SIZE_MIN, n))
+  editor.style.fontSize = fontSize + 'px'
+  if (sizeInput) sizeInput.value = fontSize
+  try {
+    localStorage.setItem(SIZE_KEY, String(fontSize))
+  } catch (_) {}
+}
+
+function changeFontSize(delta) {
+  applyFontSize(fontSize + delta)
+  editor.focus()
+}
+
+let savedSize = 17
+try {
+  savedSize = +localStorage.getItem(SIZE_KEY) || 17
+} catch (_) {}
+applyFontSize(savedSize)
+
+if (sizeInput) {
+  sizeInput.addEventListener('change', () => applyFontSize(+sizeInput.value))
 }
 
 // تحميل مبدئي

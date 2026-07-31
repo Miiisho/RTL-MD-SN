@@ -123,6 +123,32 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.toolbar .font-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.toolbar .font-size button {
+  width: 34px;
+}
+.toolbar .font-size input {
+  width: 46px;
+  height: 34px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 14px;
+  -moz-appearance: textfield;
+}
+.toolbar .font-size input::-webkit-outer-spin-button,
+.toolbar .font-size input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* ------------------------------ مساحة التحرير ----------------------------- */
 .workspace {
   flex: 1;
