@@ -849,9 +849,9 @@ function applyFont(name) {
 }
 
 if (fontSelect) {
-  let saved = 'sans'
+  let saved = 'cairo'
   try {
-    saved = localStorage.getItem(FONT_KEY) || 'sans'
+    saved = localStorage.getItem(FONT_KEY) || 'cairo'
   } catch (_) {}
   fontSelect.value = saved
   applyFont(saved)

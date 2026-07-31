@@ -193,7 +193,7 @@ body {
 }
 
 .editor {
-  font-family: var(--font);
+  font-family: "Cairo", var(--font);
   font-size: 17px;
 }
 
