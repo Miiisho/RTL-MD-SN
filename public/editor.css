@@ -1,3 +1,19 @@
+/* خط Cairo العربي العصري (مضمّن ذاتيًا) */
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/cairo-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/cairo-700.woff2") format("woff2");
+}
+
 /*
  * الألوان مربوطة بمتغيّرات ثيم Standard Notes (StyleKit) مع قيم احتياطية فاتحة،
  * فيتبع المحرر ثيم التطبيق (فاتح/داكن/مخصّص) بدل تتبّع وضع نظام الهاتف.
@@ -193,6 +209,9 @@ body {
 }
 .editor.font-mono {
   font-family: "SFMono-Regular", "Noto Sans Mono", Consolas, Menlo, monospace;
+}
+.editor.font-cairo {
+  font-family: "Cairo", "Segoe UI", "Noto Sans Arabic", Arial, sans-serif;
 }
 
 /* نص إرشادي عندما يكون المحرر فارغًا */

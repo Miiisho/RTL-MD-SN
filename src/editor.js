@@ -840,7 +840,7 @@ if (toggleBtn) {
 
 const fontSelect = document.getElementById('font-select')
 const FONT_KEY = 'rtlmd-font'
-const FONTS = ['sans', 'serif', 'alt', 'mono']
+const FONTS = ['sans', 'cairo', 'serif', 'alt', 'mono']
 
 function applyFont(name) {
   const font = FONTS.includes(name) ? name : 'sans'

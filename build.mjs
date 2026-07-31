@@ -6,9 +6,10 @@ const outdir = 'dist'
 rmSync(outdir, { recursive: true, force: true })
 mkdirSync(outdir, { recursive: true })
 
-// نسخ الملفات الثابتة (html/css) إلى مجلد dist
+// نسخ الملفات الثابتة (html/css/خطوط) إلى مجلد dist
 cpSync('public/index.html', `${outdir}/index.html`)
 cpSync('public/editor.css', `${outdir}/editor.css`)
+cpSync('public/fonts', `${outdir}/fonts`, { recursive: true })
 cpSync('ext.json', `${outdir}/ext.json`)
 
 // حزم جافاسكربت مع كل الاعتماديات في ملف واحد قائم بذاته
