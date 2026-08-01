@@ -840,7 +840,7 @@ if (toggleBtn) {
 
 const fontSelect = document.getElementById('font-select')
 const FONT_KEY = 'rtlmd-font'
-const FONTS = ['sans', 'cairo', 'serif', 'alt', 'mono']
+const FONTS = ['system', 'cairo', 'sans', 'serif', 'alt', 'mono']
 
 function applyFont(name) {
   const font = FONTS.includes(name) ? name : 'sans'
@@ -849,9 +849,9 @@ function applyFont(name) {
 }
 
 if (fontSelect) {
-  let saved = 'cairo'
+  let saved = 'system'
   try {
-    saved = localStorage.getItem(FONT_KEY) || 'cairo'
+    saved = localStorage.getItem(FONT_KEY) || 'system'
   } catch (_) {}
   fontSelect.value = saved
   applyFont(saved)

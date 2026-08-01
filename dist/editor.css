@@ -193,8 +193,14 @@ body {
 }
 
 .editor {
-  font-family: "Cairo", var(--font);
+  font-family: -apple-system, "SF Arabic", BlinkMacSystemFont, var(--font);
   font-size: 17px;
+}
+
+/* خط النظام (SF Arabic على أجهزة Apple) */
+.editor.font-system {
+  font-family: -apple-system, "SF Arabic", "SF Pro Text", BlinkMacSystemFont,
+    "Segoe UI", "Noto Sans Arabic", Arial, sans-serif;
 }
 
 /* أنواع الخطوط المتاحة (نظيفة، بلا تحميل خارجي) */
