@@ -653,6 +653,69 @@ function placeCaretAtEnd(el) {
   s.addRange(r)
 }
 
+/** تحويل فقرة فارغة إلى قائمة مهام */
+function convertBlockToTask(block) {
+  if (!block) return
+  const ul = document.createElement('ul')
+  ul.className = 'task-list'
+  const li = document.createElement('li')
+  li.className = 'task-item'
+  li.setAttribute('dir', 'auto')
+  li.innerHTML = '<input type="checkbox" contenteditable="false">&nbsp;'
+  ul.appendChild(li)
+  block.replaceWith(ul)
+  placeCaretAtEnd(li)
+  afterChange(true)
+}
+
+// --------------------------------------------------------------------------
+// التفعيل التلقائي عند الكتابة (Markdown autoformat)
+//   "1. " أو "١. " → ترقيم، "- "/"* " → نقاط، "[] " → مهام، "# " → عنوان
+// --------------------------------------------------------------------------
+
+editor.addEventListener('beforeinput', (e) => {
+  if (sourceMode) return
+  if (e.inputType !== 'insertText' || e.data !== ' ') return
+  const sel = window.getSelection()
+  if (!sel || !sel.rangeCount) return
+  const range = sel.getRangeAt(0)
+  if (!range.collapsed) return
+  const block = getCurrentBlock()
+  if (!block || block.closest('li')) return // لا نطبّقه داخل قائمة قائمة أصلًا
+
+  // النص قبل المؤشّر وبعده داخل نفس البلوك
+  const pre = range.cloneRange()
+  pre.selectNodeContents(block)
+  pre.setEnd(range.endContainer, range.endOffset)
+  const before = pre.toString()
+  const post = range.cloneRange()
+  post.selectNodeContents(block)
+  post.setStart(range.endContainer, range.endOffset)
+  if (post.toString().trim() !== '') return // فقط إذا لم يكن بعد المؤشّر نص
+
+  let kind = null
+  if (/^\s*(?:[0-9]+|[٠-٩]+)[.)]$/.test(before)) kind = 'ordered'
+  else if (/^\s*[-*]$/.test(before)) kind = 'bullet'
+  else if (/^\s*\[\s?\]$/.test(before)) kind = 'task'
+  else if (/^\s*#$/.test(before)) kind = 'h1'
+  else if (/^\s*##$/.test(before)) kind = 'h2'
+  else if (/^\s*###$/.test(before)) kind = 'h3'
+  if (!kind) return
+
+  e.preventDefault()
+  // امسح بادئة البلوك
+  const clr = document.createRange()
+  clr.selectNodeContents(block)
+  sel.removeAllRanges()
+  sel.addRange(clr)
+  document.execCommand('delete')
+
+  if (kind === 'ordered') exec('insertOrderedList')
+  else if (kind === 'bullet') exec('insertUnorderedList')
+  else if (kind === 'task') convertBlockToTask(getCurrentBlock())
+  else setHeading(+kind[1])
+})
+
 // --------------------------------------------------------------------------
 // العناوين القابلة للطيّ (Toggle)
 // --------------------------------------------------------------------------
