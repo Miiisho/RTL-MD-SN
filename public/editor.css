@@ -182,9 +182,19 @@ body {
   background: var(--bg);
   color: var(--fg);
   line-height: 1.85;
+  overflow-y: auto;
+}
+
+/* المتن: عربي من اليمين، وكل فقرة تتجه تلقائيًا حسب لغتها */
+.editor {
   direction: rtl;
   text-align: start;
-  overflow-y: auto;
+}
+
+/* المصدر (Markdown): كود/نص برمجي يُعرض دائمًا من اليسار (LTR) */
+.source {
+  direction: ltr;
+  text-align: left;
 }
 
 /* اتّجاه كل فقرة يُحدَّد تلقائيًا حسب لغتها (dir="auto") */
@@ -317,7 +327,7 @@ body.source-mode .source {
   min-width: 1.5em;
   margin-inline-end: 0.3em;
   direction: ltr;
-  unicode-bidi: isolate;
+  unicode-bidi: plaintext;
   font-variant-numeric: tabular-nums;
   color: inherit;
 }
@@ -545,4 +555,13 @@ body.source-mode .source {
 .table-tools button.danger {
   color: #d13b3b;
   border-color: transparent;
+}
+
+/* الأشكال المعبّأة داخل الأيقونات (نقاط/أرقام القوائم) تُعرض بلون الرمز */
+.toolbar button svg circle[fill],
+.toolbar button svg text {
+  stroke: none !important;
+}
+.toolbar button svg text {
+  font-weight: 600;
 }

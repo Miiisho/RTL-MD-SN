@@ -76,12 +76,42 @@ turndown.addRule('alignedBlock', {
   },
 })
 
+// الخصائص الخطية التي تُتجاهل حتى لا تتفوق على خط/مقاس المستخدم المختار
+// (الملاحظات القديمة قد تحوي font-family/font-size داخل النص فيظهر التنسيق ثابتًا
+// ومعكوسًا عبر الملاحظات والأجهزة). تُحافظ المحاذاة والتوسيط على عملها.
+const STYLE_KEEP = [
+  'text-align',
+  'margin-inline', 'margin-inline-start', 'margin-inline-end',
+  'width',
+]
+
+function isStyleKeepable(decl) {
+  return STYLE_KEEP.some((k) => decl.property === k || decl.property.startsWith(k))
+}
+
+/** يزيل القيم الخطية المتعارضة (font-family/font-size/color/background...) من تنسيقات العناصر */
+function stripInconsistentInline(html) {
+  if (!html || !html.includes('<')) return html
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  doc.querySelectorAll('[style]').forEach((el) => {
+    const kept = []
+    el.style && Array.from(el.style).forEach((prop) => {
+      const keep = isStyleKeepable({ property: prop })
+      if (keep) kept.push(`${prop}: ${el.style.getPropertyValue(prop)}`)
+    })
+    if (kept.length) el.setAttribute('style', kept.join('; '))
+    else el.removeAttribute('style')
+  })
+  return doc.body ? doc.body.innerHTML : html
+}
+
 function markdownToHtml(md) {
   const dirty = marked.parse(md || '', { breaks: true, gfm: true })
-  return DOMPurify.sanitize(dirty, {
+  const clean = DOMPurify.sanitize(dirty, {
     ADD_TAGS: ['input'],
     ADD_ATTR: ['dir', 'scope', 'colspan', 'rowspan', 'type', 'checked', 'disabled', 'style'],
   })
+  return stripInconsistentInline(clean)
 }
 
 function htmlToMarkdown(html) {
@@ -306,6 +336,7 @@ source.addEventListener('input', () => {
 function exec(command, value = null) {
   editor.focus()
   document.execCommand(command, false, value)
+  applyAutoDir()
   afterChange(true)
 }
 
@@ -333,6 +364,9 @@ function setHeading(level) {
   const tag = 'h' + level
   const isSame = currentBlockTag() === tag
   document.execCommand('formatBlock', false, isSame ? '<p>' : '<' + tag + '>')
+  const block = getCurrentBlock()
+  if (block && !block.dataset.dirManual) block.setAttribute('dir', 'auto')
+  applyAutoDir()
   afterChange(true)
 }
 
@@ -399,8 +433,14 @@ function escapeHtml(s) {
 // --------------------------------------------------------------------------
 
 function buildTable(rows, cols, header) {
+  const isRowHeader = header === 'row'
   let html = '<table>'
+  if (isRowHeader) html += '<thead>'
+  else html += '<tbody>'
   for (let r = 0; r < rows; r++) {
+    if (isRowHeader && r === 1) {
+      html += '</thead><tbody>'
+    }
     html += '<tr>'
     for (let c = 0; c < cols; c++) {
       const isHeader =
@@ -417,6 +457,7 @@ function buildTable(rows, cols, header) {
     }
     html += '</tr>'
   }
+  html += '</tbody>'
   html += '</table>'
   return html
 }
@@ -475,8 +516,11 @@ function cellIndex(cell) {
 }
 
 function makeCell(sample) {
-  const el = document.createElement(sample && sample.tagName === 'TH' ? 'td' : 'td')
+  const tag = sample && sample.tagName === 'TH' ? 'th' : 'td'
+  const scope = tag === 'th' && sample && sample.getAttribute('scope')
+  const el = document.createElement(tag)
   el.setAttribute('dir', 'auto')
+  if (scope) el.setAttribute('scope', scope)
   el.innerHTML = '&nbsp;'
   return el
 }
@@ -485,8 +529,9 @@ function tableAddRow() {
   if (!activeCell) return
   const row = activeCell.closest('tr')
   const cols = row.children.length
+  const sample = row.children[0]
   const nr = document.createElement('tr')
-  for (let i = 0; i < cols; i++) nr.appendChild(makeCell())
+  for (let i = 0; i < cols; i++) nr.appendChild(makeCell(sample))
   row.after(nr)
   afterChange(true)
 }
@@ -497,7 +542,7 @@ function tableAddCol() {
   const idx = cellIndex(activeCell)
   table.querySelectorAll('tr').forEach((tr) => {
     const ref = tr.children[idx]
-    const cell = makeCell()
+    const cell = makeCell(tr.children[idx])
     if (ref) ref.after(cell)
     else tr.appendChild(cell)
   })
