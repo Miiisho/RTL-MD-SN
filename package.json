@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "محرر Standard Notes بصيغة Markdown يكتب من اليمين إلى اليسار (RTL) مع شريط أدوات",
   "main": "dist/editor.js",
+  "sn": {
+    "main": "dist/index.html"
+  },
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
