@@ -190,8 +190,8 @@ body {
   overflow-y: auto;
 }
 
-/* المتن: عربي من اليمين؛ كل الفقرات تثبت على RTL (عربي-أولًا) ولا تنقلب على LTR
-   إلا عبر زر "تبديل الاتجاه" يدويًا */
+/* المتن: عربي من اليمين؛ اتجاه كل فقرة يتبع لغتها تلقائيًا (عربي RTL / إنجليزي LTR)،
+   مع زر "تبديل الاتجاه" للتحكم اليدوي */
 .editor {
   direction: rtl;
   text-align: start;
@@ -331,6 +331,8 @@ body.source-mode .source {
 /*
  * علامات قوائم مرسومة يدويًا (counters) — تظهر داخل تدفّق النص فلا تخرج عن
  * إطار الصفحة في RTL (تفادي خلل Safari مع علامات القوائم في الاتجاه العربي).
+ * الرقم والنقطة يرثان اتجاه العنصر نفسه: في العنصر الإنجليزي "1."، وفي
+ * العنصر العربي "٢." (النقطة على يسار الرقم ضمن تدفّق RTL).
  */
 .editor ol {
   list-style: none;
@@ -344,8 +346,6 @@ body.source-mode .source {
   display: inline-block;
   min-width: 1.5em;
   margin-inline-end: 0.3em;
-  direction: ltr;
-  unicode-bidi: isolate;
   font-variant-numeric: tabular-nums;
   color: inherit;
 }

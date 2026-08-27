@@ -1,6 +1,6 @@
 {
   "name": "rtl-md-sn",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "محرر Standard Notes بصيغة Markdown يكتب من اليمين إلى اليسار (RTL) مع شريط أدوات",
   "main": "dist/editor.js",
   "sn": {

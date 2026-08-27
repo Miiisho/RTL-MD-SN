@@ -275,16 +275,27 @@ function doRedo() {
 // الاتجاه التلقائي + التحميل + المزامنة
 // --------------------------------------------------------------------------
 
-/** اتجاه كل كتلة عربي-أولًا (RTL)، مع احترام الاتجاه اليدوي عبر زر تبديل الاتجاه */
+/**
+ * يحدّد اتجاه الكتلة حسب أول حرف قوي في نصّها، مع تخطّي الأرقام/الرموز:
+ *   "هذا نص عربي" / "150 ريال" → rtl  — و "This is English" / "Step 1" → ltr
+ * الكتلة فارغة أو بلا حرف قوي → rtl (عربي-أولًا حتى لا تقفز الكتابة عند بداية سطر).
+ */
+function smartDir(text) {
+  for (const ch of text || '') {
+    if (/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(ch)) return 'rtl'
+    if (/[A-Za-z\u00C0-\u024F]/.test(ch)) return 'ltr'
+  }
+  return 'rtl'
+}
+
+/** اتجاه كل كتلة حسب لغتها (عربي RTL / إنجليزي LTR)، مع احترام الاتجاه اليدوي */
 function applyAutoDir() {
   editor
     .querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre, td, th')
     .forEach((el) => {
       if (el.dataset.dirManual) return
-      // الكتل العربية تثبت على RTL دائمًا؛ `dir="auto"` كان يقلب أي فقرة
-      // تبدأ برقم/كلمة لاتينية إلى LTR فتختلّ كل المحاذاة والقوائم والعناوين.
-      // الكود (pre) يبقى LTR.
-      el.setAttribute('dir', el.tagName === 'PRE' ? 'ltr' : 'rtl')
+      // الكود (pre) يبقى LTR دائمًا
+      el.setAttribute('dir', el.tagName === 'PRE' ? 'ltr' : smartDir(el.textContent))
     })
 }
 
@@ -378,7 +389,7 @@ function setHeading(level) {
   const isSame = currentBlockTag() === tag
   document.execCommand('formatBlock', false, isSame ? '<p>' : '<' + tag + '>')
   const block = getCurrentBlock()
-  if (block && !block.dataset.dirManual) block.setAttribute('dir', 'rtl')
+  if (block && !block.dataset.dirManual) block.setAttribute('dir', smartDir(block.textContent))
   applyAutoDir()
   afterChange(true)
 }
