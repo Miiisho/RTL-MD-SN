@@ -345,7 +345,7 @@ body.source-mode .source {
   min-width: 1.5em;
   margin-inline-end: 0.3em;
   direction: ltr;
-  unicode-bidi: plaintext;
+  unicode-bidi: isolate;
   font-variant-numeric: tabular-nums;
   color: inherit;
 }
