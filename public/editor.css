@@ -190,7 +190,8 @@ body {
   overflow-y: auto;
 }
 
-/* المتن: عربي من اليمين، وكل فقرة تتجه تلقائيًا حسب لغتها */
+/* المتن: عربي من اليمين؛ كل الفقرات تثبت على RTL (عربي-أولًا) ولا تنقلب على LTR
+   إلا عبر زر "تبديل الاتجاه" يدويًا */
 .editor {
   direction: rtl;
   text-align: start;
@@ -202,8 +203,20 @@ body {
   text-align: left;
 }
 
-/* اتّجاه كل فقرة يُحدَّد تلقائيًا حسب لغتها (dir="auto") */
-.editor [dir="auto"] {
+/* المحاذاة الافتراضية لكل الكتل: جهة البداية (يمين في RTL)، وتبقى المحاذاة
+   اليدوية (يمين/وسط/يسار) مسيطرة لأنها تُعلَن كنمط inline */
+.editor p,
+.editor div,
+.editor h1,
+.editor h2,
+.editor h3,
+.editor h4,
+.editor h5,
+.editor h6,
+.editor li,
+.editor blockquote,
+.editor td,
+.editor th {
   text-align: start;
 }
 

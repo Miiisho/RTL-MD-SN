@@ -275,13 +275,16 @@ function doRedo() {
 // الاتجاه التلقائي + التحميل + المزامنة
 // --------------------------------------------------------------------------
 
-/** اتجاه كل فقرة تلقائيًا، مع احترام الاتجاه اليدوي */
+/** اتجاه كل كتلة عربي-أولًا (RTL)، مع احترام الاتجاه اليدوي عبر زر تبديل الاتجاه */
 function applyAutoDir() {
   editor
     .querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, blockquote, pre, td, th')
     .forEach((el) => {
       if (el.dataset.dirManual) return
-      el.setAttribute('dir', 'auto')
+      // الكتل العربية تثبت على RTL دائمًا؛ `dir="auto"` كان يقلب أي فقرة
+      // تبدأ برقم/كلمة لاتينية إلى LTR فتختلّ كل المحاذاة والقوائم والعناوين.
+      // الكود (pre) يبقى LTR.
+      el.setAttribute('dir', el.tagName === 'PRE' ? 'ltr' : 'rtl')
     })
 }
 
@@ -375,7 +378,7 @@ function setHeading(level) {
   const isSame = currentBlockTag() === tag
   document.execCommand('formatBlock', false, isSame ? '<p>' : '<' + tag + '>')
   const block = getCurrentBlock()
-  if (block && !block.dataset.dirManual) block.setAttribute('dir', 'auto')
+  if (block && !block.dataset.dirManual) block.setAttribute('dir', 'rtl')
   applyAutoDir()
   afterChange(true)
 }
@@ -463,7 +466,7 @@ function buildTable(rows, cols, header) {
             ? ' scope="row"'
             : ''
       const txt = isHeader ? 'عنوان' : '&nbsp;'
-      html += `<${tag}${scope} dir="auto">${txt}</${tag}>`
+      html += `<${tag}${scope} dir="rtl">${txt}</${tag}>`
     }
     html += '</tr>'
   }
@@ -529,7 +532,7 @@ function makeCell(sample) {
   const tag = sample && sample.tagName === 'TH' ? 'th' : 'td'
   const scope = tag === 'th' && sample && sample.getAttribute('scope')
   const el = document.createElement(tag)
-  el.setAttribute('dir', 'auto')
+  el.setAttribute('dir', 'rtl')
   if (scope) el.setAttribute('scope', scope)
   el.innerHTML = '&nbsp;'
   return el
@@ -644,7 +647,7 @@ function insertTaskList() {
   document.execCommand(
     'insertHTML',
     false,
-    '<ul class="task-list"><li class="task-item" dir="auto"><input type="checkbox" contenteditable="false"> مهمة</li></ul><p><br></p>'
+    '<ul class="task-list"><li class="task-item" dir="rtl"><input type="checkbox" contenteditable="false"> مهمة</li></ul><p><br></p>'
   )
   afterChange(true)
 }
@@ -676,7 +679,7 @@ editor.addEventListener('keydown', (e) => {
   if (empty) {
     // عنصر فارغ: أنهِ القائمة بفقرة عادية
     const p = document.createElement('p')
-    p.setAttribute('dir', 'auto')
+    p.setAttribute('dir', 'rtl')
     p.innerHTML = '<br>'
     li.closest('ul').after(p)
     li.remove()
@@ -684,7 +687,7 @@ editor.addEventListener('keydown', (e) => {
   } else {
     const nli = document.createElement('li')
     nli.className = 'task-item'
-    nli.setAttribute('dir', 'auto')
+    nli.setAttribute('dir', 'rtl')
     nli.innerHTML = '<input type="checkbox" contenteditable="false">&nbsp;'
     li.after(nli)
     placeCaretAtEnd(nli)
@@ -716,7 +719,7 @@ function convertBlockToTask(block) {
   ul.className = 'task-list'
   const li = document.createElement('li')
   li.className = 'task-item'
-  li.setAttribute('dir', 'auto')
+  li.setAttribute('dir', 'rtl')
   li.innerHTML = '<input type="checkbox" contenteditable="false">&nbsp;'
   ul.appendChild(li)
   block.replaceWith(ul)
