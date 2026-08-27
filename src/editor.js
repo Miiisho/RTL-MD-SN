@@ -320,8 +320,18 @@ function afterChange(immediate) {
 let sourceMode = false
 
 editor.addEventListener('input', () => {
+  keptRange = null // أي تعديل فعلي (كتابة/لصق/تنسيق) يُنهي التحديد المحفوظ
   if (sourceMode || isRestoring) return
   afterChange(false)
+})
+
+// لمسة داخل النص أو حركة بالمؤشر تُنهي التحديد المحفوظ (لا نعيد تنسيق نص قديم)
+editor.addEventListener('pointerdown', () => {
+  keptRange = null
+})
+editor.addEventListener('keydown', (e) => {
+  if (e.isComposing) return
+  if (e.key.startsWith('Arrow') || e.key === 'Home' || e.key === 'End') keptRange = null
 })
 
 source.addEventListener('input', () => {
@@ -653,6 +663,7 @@ editor.addEventListener('click', (e) => {
 
 // Enter داخل عنصر مهمة يُنشئ مهمة جديدة بمربع
 editor.addEventListener('keydown', (e) => {
+  if (e.isComposing) return // إدخال IME لا يُعتبر Enter فعليًا
   if (e.key !== 'Enter' || e.shiftKey) return
   const sel = window.getSelection()
   if (!sel || !sel.rangeCount) return
@@ -720,6 +731,7 @@ function convertBlockToTask(block) {
 
 editor.addEventListener('beforeinput', (e) => {
   if (sourceMode) return
+  if (e.isComposing) return // أثناء الكتابة بلوحة المفاتيح العربية (IME) لا ننشّط التنسيق التلقائي
   if (e.inputType !== 'insertText' || e.data !== ' ') return
   const sel = window.getSelection()
   if (!sel || !sel.rangeCount) return
@@ -790,6 +802,39 @@ editor.addEventListener('click', (e) => {
 })
 
 // --------------------------------------------------------------------------
+// الحفاظ على التحديد المختار لشريط الأدوات
+//   قوائم النظام (نسخ/قص/تحديد) في الجوال تُغلق عند لمسة الزر وتمسح التحديد،
+//   فنحفظ آخر تحديد غير فارغ ونعيد استعادته قبل تنفيذ أي أمر تنسيق.
+// --------------------------------------------------------------------------
+
+let keptRange = null
+
+/** يحفظ آخر تحديد غير فارغ داخل المحرر */
+function rememberSelection() {
+  const sel = window.getSelection()
+  if (!sel || !sel.rangeCount) return
+  const r = sel.getRangeAt(0)
+  if (r.collapsed) return
+  if (!editor.contains(r.commonAncestorContainer)) return
+  keptRange = r.cloneRange()
+}
+
+/** يستعيد التحديد المحفوظ إذا فقده النظام؛ وإذا كان التحديد حيًّا نكتفي به */
+function restoreKeptSelection() {
+  const sel = window.getSelection()
+  if (!keptRange) return
+  if (!editor.contains(keptRange.commonAncestorContainer)) {
+    keptRange = null
+    return
+  }
+  const live = sel.rangeCount ? sel.getRangeAt(0) : null
+  if (live && !live.collapsed && editor.contains(live.commonAncestorContainer)) return
+  sel.removeAllRanges()
+  sel.addRange(keptRange)
+  editor.focus()
+}
+
+// --------------------------------------------------------------------------
 // ربط أزرار شريط الأدوات
 // --------------------------------------------------------------------------
 
@@ -822,9 +867,17 @@ document.querySelectorAll('[data-action]').forEach((btn) => {
   btn.addEventListener('mousedown', (e) => e.preventDefault())
   btn.addEventListener('click', (e) => {
     e.preventDefault()
+    restoreKeptSelection()
     const fn = actions[btn.dataset.action]
     if (fn) fn()
   })
+})
+
+// قائمة النظام (Copy/Define...) لا تُفتح فوق شريط الأدوات واللوحات العائمة
+document.addEventListener('contextmenu', (e) => {
+  if (e.target && e.target.closest && e.target.closest('.toolbar, .popover, .table-tools')) {
+    e.preventDefault()
+  }
 })
 
 // --------------------------------------------------------------------------
@@ -861,6 +914,7 @@ document.addEventListener('selectionchange', () => {
   if (sourceMode) return
   updateToolbarState()
   updateTableTools()
+  rememberSelection()
 })
 
 // --------------------------------------------------------------------------
@@ -870,6 +924,7 @@ document.addEventListener('selectionchange', () => {
 editor.addEventListener('keydown', (e) => {
   const mod = e.ctrlKey || e.metaKey
   if (!mod) return
+  if (e.isComposing) return
   const key = e.key.toLowerCase()
   if (key === 'b') {
     e.preventDefault()
