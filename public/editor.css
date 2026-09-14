@@ -43,6 +43,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 body {
@@ -175,6 +176,7 @@ body {
   flex: 1;
   min-height: 0;
   display: flex;
+  overflow: hidden;
 }
 
 .editor,
@@ -188,6 +190,7 @@ body {
   color: var(--fg);
   line-height: 1.85;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* المتن: عربي من اليمين؛ اتجاه كل فقرة يتبع لغتها تلقائيًا (عربي RTL / إنجليزي LTR)،
@@ -195,6 +198,9 @@ body {
 .editor {
   direction: rtl;
   text-align: start;
+  min-height: 100%;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* المصدر (Markdown): كود/نص برمجي يُعرض دائمًا من اليسار (LTR) */

@@ -658,7 +658,7 @@ function insertTaskList() {
   document.execCommand(
     'insertHTML',
     false,
-    '<ul class="task-list"><li class="task-item" dir="rtl"><input type="checkbox" contenteditable="false"> مهمة</li></ul><p><br></p>'
+    '<ul class="task-list"><li class="task-item" dir="auto"><input type="checkbox" contenteditable="false">&nbsp;</li></ul><p><br></p>'
   )
   afterChange(true)
 }
