@@ -141,6 +141,43 @@ function scheduleSave(markdown) {
   saveTimer = setTimeout(() => saveNote(markdown), 350)
 }
 
+// --------------------------------------------------------------------------
+// شبكة أمان للألوان: في حال خلل متغيّرات الثيم (خاصة Android) يُفحص التباين
+// ويُصحَّح اللون يدويًا حتى يبقى النص مرئيًا دائمًا.
+// --------------------------------------------------------------------------
+
+function parseRGB(str) {
+  if (!str) return null
+  const m = str.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/)
+  if (!m) return null
+  return [+m[1], +m[2], +m[3]]
+}
+
+function relLum(rgb) {
+  const [r, g, b] = rgb.map((v) => {
+    const c = v / 255
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+function ensureVisibleText() {
+  try {
+    const cs = getComputedStyle(editor)
+    const bg = parseRGB(cs.backgroundColor)
+    const fg = parseRGB(cs.color)
+    if (!bg || !fg) return
+    const L1 = relLum(bg)
+    const L2 = relLum(fg)
+    const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05)
+    if (ratio >= 3) return
+    const useDark = L1 > 0.5
+    editor.style.color = useDark ? '#1a1d23' : '#e8eaed'
+    document.body.style.color = editor.style.color
+    document.documentElement.style.setProperty('--fg', editor.style.color)
+  } catch (_) {}
+}
+
 function initComponentRelay() {
   componentRelay = new ComponentRelay({
     initialPermissions: [{ name: 'stream-context-item' }],
@@ -149,6 +186,7 @@ function initComponentRelay() {
       document.documentElement.classList.add('sn-ready')
       const platform = componentRelay.platform
       if (platform) document.body.setAttribute('data-platform', platform)
+      ensureVisibleText()
     },
   })
 
@@ -167,6 +205,14 @@ try {
   initComponentRelay()
 } catch (e) {
   console.warn('Component relay unavailable, running standalone:', e)
+}
+
+if (window.requestAnimationFrame) {
+  requestAnimationFrame(ensureVisibleText)
+  setTimeout(ensureVisibleText, 500)
+} else {
+  ensureVisibleText()
+  setTimeout(ensureVisibleText, 500)
 }
 
 // --------------------------------------------------------------------------

@@ -43,7 +43,10 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 body {
@@ -54,6 +57,7 @@ body {
   font-family: var(--font);
   font-size: 17px;
   -webkit-text-size-adjust: 100%;
+  overflow: hidden;
 }
 
 /* ------------------------------- شريط الأدوات ------------------------------ */
@@ -177,6 +181,7 @@ body {
   min-height: 0;
   display: flex;
   overflow: hidden;
+  position: relative;
 }
 
 .editor,
@@ -191,6 +196,8 @@ body {
   line-height: 1.85;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  position: absolute;
+  inset: 0;
 }
 
 /* المتن: عربي من اليمين؛ اتجاه كل فقرة يتبع لغتها تلقائيًا (عربي RTL / إنجليزي LTR)،
@@ -198,7 +205,6 @@ body {
 .editor {
   direction: rtl;
   text-align: start;
-  min-height: 100%;
   -webkit-user-select: text;
   user-select: text;
 }
