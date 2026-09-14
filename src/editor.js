@@ -263,19 +263,24 @@ const history = { stack: [], index: -1, limit: 300 }
 let recordTimer = null
 let isRestoring = false
 
-function pushHistory() {
-  const snap = { html: editor.innerHTML, caret: getCaretOffset() }
+function historyRecord(html, caret) {
+  const snap = { html, caret }
   if (history.index < history.stack.length - 1) {
     history.stack = history.stack.slice(0, history.index + 1)
   }
   const last = history.stack[history.index]
   if (last && last.html === snap.html) {
     last.caret = snap.caret
-    return
+    return false
   }
   history.stack.push(snap)
   if (history.stack.length > history.limit) history.stack.shift()
   history.index = history.stack.length - 1
+  return true
+}
+
+function pushHistory() {
+  historyRecord(editor.innerHTML, getCaretOffset())
 }
 
 function scheduleRecord() {
@@ -293,6 +298,7 @@ function restore(snap) {
   isRestoring = true
   editor.innerHTML = snap.html
   applyAutoDir()
+  decorateTasks()
   setCaretOffset(snap.caret)
   isRestoring = false
   const md = htmlToMarkdown(editor.innerHTML)
@@ -301,8 +307,17 @@ function restore(snap) {
   updateToolbarState()
 }
 
+/** إذا كان هناك تعديل لم يُسجَّل بعد (المؤقت معلّق) سجّله فورًا قبل التنقّل في التاريخ */
+function flushPendingRecord() {
+  if (recordTimer) {
+    clearTimeout(recordTimer)
+    recordTimer = null
+    pushHistory()
+  }
+}
+
 function doUndo() {
-  clearTimeout(recordTimer)
+  flushPendingRecord()
   if (history.index > 0) {
     history.index--
     restore(history.stack[history.index])
@@ -310,7 +325,7 @@ function doUndo() {
 }
 
 function doRedo() {
-  clearTimeout(recordTimer)
+  flushPendingRecord()
   if (history.index < history.stack.length - 1) {
     history.index++
     restore(history.stack[history.index])
