@@ -1049,10 +1049,10 @@ const SIZE_KEY = 'rtlmd-fontsize'
 const SIZE_MIN = 12
 const SIZE_MAX = 40
 const sizeInput = document.getElementById('font-size-input')
-let fontSize = 17
+let fontSize = 14
 
 function applyFontSize(px) {
-  const n = Math.round(+px) || 17
+  const n = Math.round(+px) || 14
   fontSize = Math.min(SIZE_MAX, Math.max(SIZE_MIN, n))
   editor.style.fontSize = fontSize + 'px'
   if (sizeInput) sizeInput.value = fontSize
@@ -1066,9 +1066,9 @@ function changeFontSize(delta) {
   editor.focus()
 }
 
-let savedSize = 17
+let savedSize = 14
 try {
-  savedSize = +localStorage.getItem(SIZE_KEY) || 17
+  savedSize = +localStorage.getItem(SIZE_KEY) || 14
 } catch (_) {}
 applyFontSize(savedSize)
 
