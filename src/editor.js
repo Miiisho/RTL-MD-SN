@@ -655,10 +655,16 @@ if (tableTools) {
 
 function insertTaskList() {
   editor.focus()
+  const sel = window.getSelection()
+  let label = 'مهمة'
+  if (sel && sel.rangeCount && !sel.getRangeAt(0).collapsed) {
+    const selectedText = sel.toString().trim()
+    if (selectedText) label = escapeHtml(selectedText)
+  }
   document.execCommand(
     'insertHTML',
     false,
-    '<ul class="task-list"><li class="task-item" dir="rtl"><input type="checkbox" contenteditable="false"> مهمة</li></ul><p><br></p>'
+    `<ul class="task-list"><li class="task-item" dir="rtl"><input type="checkbox" contenteditable="false"> ${label}</li></ul><p><br></p>`
   )
   afterChange(true)
 }
