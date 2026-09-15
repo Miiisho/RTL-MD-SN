@@ -653,12 +653,50 @@ if (tableTools) {
 // قائمة المهام (To-Do)
 // --------------------------------------------------------------------------
 
+function closestTaskItem(node) {
+  if (!node) return null
+  const el = node.nodeType === 1 ? node : node.parentElement
+  return el && el.closest ? el.closest('li.task-item') : null
+}
+
+function taskItemsInRange(range) {
+  const items = Array.from(editor.querySelectorAll('li.task-item'))
+  return items.filter((li) =>
+    range.intersectsNode ? range.intersectsNode(li) : true
+  )
+}
+
+function removeTaskFormatting(items) {
+  items.forEach((li) => {
+    const cb = li.querySelector('input[type="checkbox"]')
+    if (cb) cb.remove()
+    li.classList.remove('task-item')
+    li.removeAttribute('dir')
+    if (li.firstChild && li.firstChild.nodeType === 3) {
+      li.firstChild.textContent = li.firstChild.textContent.replace(/^[\s\u00a0]+/, '')
+    }
+    const ul = li.closest('ul.task-list')
+    if (ul && !ul.querySelector('li.task-item')) ul.classList.remove('task-list')
+  })
+}
+
 function insertTaskList() {
   editor.focus()
   const sel = window.getSelection()
+  if (!sel || !sel.rangeCount) return
+  const range = sel.getRangeAt(0)
+
+  // زر تبديل: لو التحديد/المؤشر داخل مهمة موجودة أصلاً، نلغي التنسيق بدل ما نكرره
+  const startTask = closestTaskItem(range.startContainer)
+  if (startTask) {
+    const items = range.collapsed ? [startTask] : taskItemsInRange(range)
+    removeTaskFormatting(items.length ? items : [startTask])
+    afterChange(true)
+    return
+  }
+
   let lines = []
-  if (sel && sel.rangeCount && !sel.getRangeAt(0).collapsed) {
-    const range = sel.getRangeAt(0)
+  if (!range.collapsed) {
     const temp = document.createElement('div')
     temp.appendChild(range.cloneContents())
     const blocks = temp.querySelectorAll('li, p, div, h1, h2, h3, h4, h5, h6')
@@ -944,6 +982,11 @@ function updateToolbarState() {
       btn.classList.toggle('is-active', active)
     } else if (action === 'h1' || action === 'h2' || action === 'h3') {
       btn.classList.toggle('is-active', tag === action)
+    } else if (action === 'task') {
+      const sel = window.getSelection()
+      const inTask =
+        sel && sel.rangeCount ? !!closestTaskItem(sel.getRangeAt(0).startContainer) : false
+      btn.classList.toggle('is-active', inTask)
     }
   })
 }
