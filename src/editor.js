@@ -881,7 +881,6 @@ editor.addEventListener('beforeinput', (e) => {
   let kind = null
   if (/^\s*(?:[0-9]+|[٠-٩]+)[.)]$/.test(before)) kind = 'ordered'
   else if (/^\s*[-*]$/.test(before)) kind = 'bullet'
-  else if (/^\s*\[\s?\]$/.test(before)) kind = 'task'
   else if (/^\s*#$/.test(before)) kind = 'h1'
   else if (/^\s*##$/.test(before)) kind = 'h2'
   else if (/^\s*###$/.test(before)) kind = 'h3'
@@ -897,7 +896,6 @@ editor.addEventListener('beforeinput', (e) => {
 
   if (kind === 'ordered') exec('insertOrderedList')
   else if (kind === 'bullet') exec('insertUnorderedList')
-  else if (kind === 'task') convertBlockToTask(getCurrentBlock())
   else setHeading(+kind[1])
 })
 
@@ -976,7 +974,6 @@ const actions = {
   h3: () => setHeading(3),
   bullet: () => setListType('bullet'),
   ordered: () => setListType('ordered'),
-  task: () => setListType('task'),
   divider: () => exec('insertHorizontalRule'),
   code: insertCode,
   dir: toggleDir,
