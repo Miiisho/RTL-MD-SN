@@ -653,17 +653,20 @@ if (tableTools) {
 // قائمة المهام (To-Do)
 // --------------------------------------------------------------------------
 
-function closestTaskItem(node) {
+function closestLi(node) {
   if (!node) return null
   const el = node.nodeType === 1 ? node : node.parentElement
-  return el && el.closest ? el.closest('li.task-item') : null
+  return el && el.closest ? el.closest('li') : null
 }
 
-function taskItemsInRange(range) {
-  const items = Array.from(editor.querySelectorAll('li.task-item'))
-  return items.filter((li) =>
-    range.intersectsNode ? range.intersectsNode(li) : true
-  )
+function listKindOfLi(li) {
+  if (!li) return null
+  if (li.classList.contains('task-item')) return 'task'
+  const parent = li.parentElement
+  if (!parent) return null
+  if (parent.tagName === 'OL') return 'ordered'
+  if (parent.tagName === 'UL') return 'bullet'
+  return null
 }
 
 function removeTaskFormatting(items) {
@@ -680,21 +683,18 @@ function removeTaskFormatting(items) {
   })
 }
 
-function insertTaskList() {
-  editor.focus()
+function taskItemsInRange(range) {
+  const items = Array.from(editor.querySelectorAll('li.task-item'))
+  return items.filter((li) =>
+    range.intersectsNode ? range.intersectsNode(li) : true
+  )
+}
+
+/** يحوّل السطر/الأسطر المحددة حاليًا إلى قائمة مهام، بالاعتماد على النص فقط */
+function insertTaskFromSelection() {
   const sel = window.getSelection()
   if (!sel || !sel.rangeCount) return
   const range = sel.getRangeAt(0)
-
-  // زر تبديل: لو التحديد/المؤشر داخل مهمة موجودة أصلاً، نلغي التنسيق بدل ما نكرره
-  const startTask = closestTaskItem(range.startContainer)
-  if (startTask) {
-    const items = range.collapsed ? [startTask] : taskItemsInRange(range)
-    removeTaskFormatting(items.length ? items : [startTask])
-    afterChange(true)
-    return
-  }
-
   let lines = []
   if (!range.collapsed) {
     const temp = document.createElement('div')
@@ -723,6 +723,58 @@ function insertTaskList() {
     `<ul class="task-list">${itemsHtml}</ul><p><br></p>`
   )
   afterChange(true)
+}
+
+/**
+ * تنقيط، ترقيم، ومهام أنواع متنافية: تفعيل واحد يلغي الآخرين تلقائيًا،
+ * والضغط على نفس النوع النشط يلغيه بدل ما يكرره.
+ */
+function setListType(kind) {
+  editor.focus()
+  const sel = window.getSelection()
+  if (!sel || !sel.rangeCount) return
+  const range = sel.getRangeAt(0)
+  const li = closestLi(range.startContainer)
+  const current = listKindOfLi(li)
+
+  // نفس النوع النشط: إلغاء التنسيق بالكامل
+  if (current === kind) {
+    if (kind === 'task') {
+      const items = range.collapsed ? [li] : taskItemsInRange(range)
+      removeTaskFormatting(items.length ? items : [li])
+      afterChange(true)
+    } else {
+      exec(kind === 'ordered' ? 'insertOrderedList' : 'insertUnorderedList')
+    }
+    return
+  }
+
+  // التبديل من مهمة إلى نوع آخر: نشيل تنسيق المهمة أول
+  if (current === 'task') {
+    const items = range.collapsed ? [li] : taskItemsInRange(range)
+    removeTaskFormatting(items.length ? items : [li])
+    if (kind === 'bullet') {
+      afterChange(true)
+      return
+    }
+    exec('insertOrderedList') // bullet -> ordered
+    return
+  }
+
+  // التبديل من تنقيط/ترقيم إلى النوع الآخر أو إلى مهام
+  if (current === 'bullet' || current === 'ordered') {
+    if (kind === 'task') {
+      exec(current === 'ordered' ? 'insertOrderedList' : 'insertUnorderedList') // يلغي التنسيق الحالي
+      insertTaskFromSelection()
+    } else {
+      exec(kind === 'ordered' ? 'insertOrderedList' : 'insertUnorderedList')
+    }
+    return
+  }
+
+  // نص عادي بدون أي تنسيق قائمة
+  if (kind === 'task') insertTaskFromSelection()
+  else exec(kind === 'ordered' ? 'insertOrderedList' : 'insertUnorderedList')
 }
 
 // النقر على المربع يبدّل حالته
@@ -922,9 +974,9 @@ const actions = {
   h1: () => setHeading(1),
   h2: () => setHeading(2),
   h3: () => setHeading(3),
-  bullet: () => exec('insertUnorderedList'),
-  ordered: () => exec('insertOrderedList'),
-  task: insertTaskList,
+  bullet: () => setListType('bullet'),
+  ordered: () => setListType('ordered'),
+  task: () => setListType('task'),
   divider: () => exec('insertHorizontalRule'),
   code: insertCode,
   dir: toggleDir,
@@ -965,12 +1017,13 @@ const stateMap = {
   italic: 'italic',
   underline: 'underline',
   strike: 'strikeThrough',
-  bullet: 'insertUnorderedList',
-  ordered: 'insertOrderedList',
 }
 
 function updateToolbarState() {
   const tag = currentBlockTag()
+  const sel = window.getSelection()
+  const currentKind =
+    sel && sel.rangeCount ? listKindOfLi(closestLi(sel.getRangeAt(0).startContainer)) : null
   document.querySelectorAll('[data-action]').forEach((btn) => {
     const action = btn.dataset.action
     const cmd = stateMap[action]
@@ -982,11 +1035,8 @@ function updateToolbarState() {
       btn.classList.toggle('is-active', active)
     } else if (action === 'h1' || action === 'h2' || action === 'h3') {
       btn.classList.toggle('is-active', tag === action)
-    } else if (action === 'task') {
-      const sel = window.getSelection()
-      const inTask =
-        sel && sel.rangeCount ? !!closestTaskItem(sel.getRangeAt(0).startContainer) : false
-      btn.classList.toggle('is-active', inTask)
+    } else if (action === 'bullet' || action === 'ordered' || action === 'task') {
+      btn.classList.toggle('is-active', currentKind === action)
     }
   })
 }
