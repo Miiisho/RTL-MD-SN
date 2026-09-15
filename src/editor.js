@@ -656,15 +656,33 @@ if (tableTools) {
 function insertTaskList() {
   editor.focus()
   const sel = window.getSelection()
-  let label = 'مهمة'
+  let lines = []
   if (sel && sel.rangeCount && !sel.getRangeAt(0).collapsed) {
-    const selectedText = sel.toString().trim()
-    if (selectedText) label = escapeHtml(selectedText)
+    const range = sel.getRangeAt(0)
+    const temp = document.createElement('div')
+    temp.appendChild(range.cloneContents())
+    const blocks = temp.querySelectorAll('li, p, div, h1, h2, h3, h4, h5, h6')
+    if (blocks.length) {
+      blocks.forEach((b) => {
+        const t = b.textContent.trim()
+        if (t) lines.push(t)
+      })
+    } else {
+      const t = temp.textContent.trim()
+      if (t) lines.push(t)
+    }
   }
+  if (!lines.length) lines = ['مهمة']
+  const itemsHtml = lines
+    .map(
+      (l) =>
+        `<li class="task-item" dir="rtl"><input type="checkbox" contenteditable="false"> ${escapeHtml(l)}</li>`
+    )
+    .join('')
   document.execCommand(
     'insertHTML',
     false,
-    `<ul class="task-list"><li class="task-item" dir="rtl"><input type="checkbox" contenteditable="false"> ${label}</li></ul><p><br></p>`
+    `<ul class="task-list">${itemsHtml}</ul><p><br></p>`
   )
   afterChange(true)
 }
